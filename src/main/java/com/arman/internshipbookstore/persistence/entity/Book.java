@@ -43,7 +43,7 @@ public class Book {
     private String format;
 
     @OneToMany(mappedBy = "book")
-    private List<Author> authors;
+    private List<BookAuthor> authors;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "publisher")
@@ -54,6 +54,5 @@ public class Book {
 
     @Column(name = "first_publish_date")
     private String firstPublishDate;
-
 
 }
