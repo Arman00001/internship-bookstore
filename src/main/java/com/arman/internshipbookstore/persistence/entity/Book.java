@@ -24,7 +24,7 @@ public class Book {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "description", nullable = false)
+    @Column(columnDefinition = "TEXT", name = "description")
     private String description;
 
     @Column(name = "series", nullable = false)
@@ -42,8 +42,8 @@ public class Book {
     @Column(name = "format", nullable = false)
     private String format;
 
-    @OneToMany(mappedBy = "book")
-    private List<BookAuthor> authors;
+//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "book")
+//    private List<BookAuthor> authors;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "publisher")
@@ -55,4 +55,24 @@ public class Book {
     @Column(name = "first_publish_date")
     private String firstPublishDate;
 
+    @Column(name = "language")
+    private String language;
+
+    @Column(name = "edition")
+    private String edition;
+
+    @Column(name = "num_ratings")
+    private String numRatings;
+
+    @Column(name = "liked_percent")
+    private Integer likedPercent;
+
+    @Column(name = "bbe_score")
+    private Integer bbeScore;
+
+    @Column(name = "bbe_votes")
+    private Integer bbeVotes;
+
+    @Column(name = "price")
+    private Double price;
 }
