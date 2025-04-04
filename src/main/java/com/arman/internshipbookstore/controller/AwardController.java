@@ -1,7 +1,7 @@
 package com.arman.internshipbookstore.controller;
 
 import com.arman.internshipbookstore.persistence.entity.Award;
-import com.arman.internshipbookstore.persistence.repository.AwardRepository;
+import com.arman.internshipbookstore.service.AwardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,15 +9,15 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AwardController {
 
-    private final AwardRepository awardRepository;
+    private final AwardService awardService;
 
     @GetMapping("/getAwardByName")
-    public Award getPublisherByName(@RequestParam String name){
-        return awardRepository.getAwardByName(name);
+    public Award getAwardByName(@RequestParam String name){
+        return awardService.getAwardByName(name);
     }
 
     @PostMapping("/addAward")
-    public void addPublisher(@RequestBody Award award){
-        awardRepository.save(award);
+    public void addAward(@RequestBody Award award){
+        awardService.save(award);
     }
 }

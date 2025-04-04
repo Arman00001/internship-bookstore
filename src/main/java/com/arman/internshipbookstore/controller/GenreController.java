@@ -1,7 +1,7 @@
 package com.arman.internshipbookstore.controller;
 
 import com.arman.internshipbookstore.persistence.entity.Genre;
-import com.arman.internshipbookstore.persistence.repository.GenreRepository;
+import com.arman.internshipbookstore.service.GenreService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,15 +9,15 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class GenreController {
 
-    private final GenreRepository genreRepository;
+    private final GenreService genreService;
 
     @GetMapping("/getGenreByName")
-    public Genre getPublisherByName(@RequestParam String name){
-        return genreRepository.getGenreByName(name);
+    public Genre getGenreByName(@RequestParam String name){
+        return genreService.getGenreByName(name);
     }
 
     @PostMapping("/addGenre")
-    public void addPublisher(@RequestBody Genre genre){
-        genreRepository.save(genre);
+    public void addGenre(@RequestBody Genre genre){
+        genreService.save(genre);
     }
 }

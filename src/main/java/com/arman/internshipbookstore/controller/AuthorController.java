@@ -2,6 +2,7 @@ package com.arman.internshipbookstore.controller;
 
 import com.arman.internshipbookstore.persistence.entity.Author;
 import com.arman.internshipbookstore.persistence.repository.AuthorRepository;
+import com.arman.internshipbookstore.service.AuthorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,15 +10,15 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthorController {
 
-    private final AuthorRepository authorRepository;
+    private final AuthorService authorService;
 
     @GetMapping("/getAuthorByName")
-    public Author getPublisherByName(@RequestParam String name){
-        return authorRepository.getAuthorByName(name);
+    public Author getAuthorByName(@RequestParam String name){
+        return authorService.getAuthorByName(name);
     }
 
     @PostMapping("/addAuthor")
     public void addAuthor(@RequestBody Author author){
-        authorRepository.save(author);
+        authorService.save(author);
     }
 }
