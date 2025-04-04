@@ -65,14 +65,14 @@ public class Book {
     @Column(name = "price")
     private Double price;
 
-    @OneToMany(mappedBy = "book")
-    private List<BookAuthor> authors;
-
-    @OneToMany(mappedBy = "book")
-    private List<BookAward> awards;
-
-    @OneToMany(mappedBy = "book")
-    private List<BookGenre> genres;
+//    @OneToMany(mappedBy = "book")
+//    private List<BookAuthor> authors;
+//
+//    @OneToMany(mappedBy = "book")
+//    private List<BookAward> awards;
+//
+//    @OneToMany(mappedBy = "book")
+//    private List<BookGenre> genres;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "publisher")
