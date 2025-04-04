@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 public class BookService {
     private final BookRepository bookRepository;
     private final PublisherService publisherService;
+    private final AuthorService authorService;
+    private final AwardService awardService;
 
 
     public Book getBookByTitle(String title) {
@@ -23,6 +25,7 @@ public class BookService {
         if(publisherService.getPublisherByName(book.getPublisher().getName())==null){
              publisher = publisherService.save(book.getPublisher());
         } else publisher = publisherService.getPublisherByName(book.getPublisher().getName());
+
 
         book.setPublisher(publisher);
         bookRepository.save(book);
