@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 
 @Entity
 @Setter
@@ -18,6 +20,6 @@ public class Publisher {
     @Column(name = "name")
     private String name;
 
-
-
+    @OneToMany(mappedBy = "publisher", cascade = CascadeType.MERGE)
+    private List<Book> books;
 }

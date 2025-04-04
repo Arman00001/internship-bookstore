@@ -13,10 +13,6 @@ import java.util.List;
 @Table(name = "book")
 public class Book {
 
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
-
     @Id
     @Column(name = "bookId", nullable = false, unique = true)
     private String bookId;
@@ -41,13 +37,6 @@ public class Book {
 
     @Column(name = "format", nullable = false)
     private String format;
-
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "book")
-//    private List<BookAuthor> authors;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "publisher")
-    private Publisher publisher;
 
     @Column(name = "publish_date", nullable = false)
     private String publishDate;
@@ -75,4 +64,17 @@ public class Book {
 
     @Column(name = "price")
     private Double price;
+
+    @OneToMany(mappedBy = "book")
+    private List<BookAuthor> authors;
+
+    @OneToMany(mappedBy = "book")
+    private List<BookAward> awards;
+
+    @OneToMany(mappedBy = "book")
+    private List<BookGenre> genres;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "publisher")
+    private Publisher publisher;
 }
