@@ -1,7 +1,7 @@
 package com.arman.internshipbookstore.controller;
 
 import com.arman.internshipbookstore.persistence.entity.Book;
-import com.arman.internshipbookstore.persistence.repository.BookRepository;
+import com.arman.internshipbookstore.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,16 +9,16 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BookController {
 
-    private final BookRepository bookRepository;
+    private final BookService bookService;
 
     @GetMapping("/getBookByName")
     public Book getBookByName(@RequestParam String title){
-        return bookRepository.getBookByTitle(title);
+        return bookService.getBookByTitle(title);
     }
 
     @PostMapping("/addBook")
     public void addBook(@RequestBody Book book){
-        bookRepository.save(book);
+        bookService.save(book);
     }
 
 }
