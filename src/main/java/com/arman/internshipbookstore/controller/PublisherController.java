@@ -2,6 +2,7 @@ package com.arman.internshipbookstore.controller;
 
 import com.arman.internshipbookstore.persistence.entity.Publisher;
 import com.arman.internshipbookstore.service.PublisherService;
+import com.arman.internshipbookstore.service.dto.PublisherDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ public class PublisherController {
     }
 
     @PostMapping("/addPublisher")
-    public void addPublisher(@RequestBody Publisher publisher){
-        publisherService.save(publisher);
+    public void addPublisher(@RequestBody PublisherDto publisherDto){
+        publisherService.save(publisherDto);
     }
 }

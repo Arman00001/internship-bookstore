@@ -1,8 +1,8 @@
 package com.arman.internshipbookstore.controller;
 
 import com.arman.internshipbookstore.persistence.entity.Author;
-import com.arman.internshipbookstore.persistence.repository.AuthorRepository;
 import com.arman.internshipbookstore.service.AuthorService;
+import com.arman.internshipbookstore.service.dto.AuthorDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +18,7 @@ public class AuthorController {
     }
 
     @PostMapping("/addAuthor")
-    public void addAuthor(@RequestBody Author author){
-        authorService.save(author);
+    public void addAuthor(@RequestBody AuthorDto authorDto){
+        authorService.save(authorDto);
     }
 }

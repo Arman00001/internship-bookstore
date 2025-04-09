@@ -2,6 +2,7 @@ package com.arman.internshipbookstore.controller;
 
 import com.arman.internshipbookstore.persistence.entity.Award;
 import com.arman.internshipbookstore.service.AwardService;
+import com.arman.internshipbookstore.service.dto.AwardDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +18,7 @@ public class AwardController {
     }
 
     @PostMapping("/addAward")
-    public void addAward(@RequestBody Award award){
-        awardService.save(award);
+    public void addAward(@RequestBody AwardDto awardDto){
+        awardService.save(awardDto);
     }
 }
