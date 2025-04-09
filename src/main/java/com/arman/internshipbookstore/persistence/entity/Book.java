@@ -1,12 +1,18 @@
 package com.arman.internshipbookstore.persistence.entity;
 
 
+import com.arman.internshipbookstore.enums.Genre;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
+//edit publish date
+//
 @Entity
 @Setter
 @Getter
@@ -14,7 +20,7 @@ import java.util.List;
 public class Book {
 
     @Id
-    @Column(name = "bookId", nullable = false, unique = true)
+    @Column(name = "book_id", nullable = false, unique = true)
     private String bookId;
 
     @Column(name = "title", nullable = false)
@@ -23,7 +29,7 @@ public class Book {
     @Column(columnDefinition = "TEXT", name = "description")
     private String description;
 
-    @Column(name = "series", nullable = false)
+    @Column(name = "series")
     private String series;
 
     @Column(name = "rating", nullable = false)
@@ -39,10 +45,10 @@ public class Book {
     private String format;
 
     @Column(name = "publish_date", nullable = false)
-    private String publishDate;
+    private LocalDate publishDate;
 
     @Column(name = "first_publish_date")
-    private String firstPublishDate;
+    private LocalDate firstPublishDate;
 
     @Column(name = "language")
     private String language;
@@ -50,11 +56,14 @@ public class Book {
     @Column(name = "edition")
     private String edition;
 
-    @Column(name = "num_ratings")
-    private String numRatings;
+    @Column(name = "num_ratings", nullable = false)
+    private Integer numRatings;
 
-    @Column(name = "liked_percent")
+    @Column(name = "liked_percent", nullable = false)
     private Integer likedPercent;
+
+    @Column(columnDefinition = "TEXT",name = "setting")
+    private String setting;
 
     @Column(name = "bbe_score")
     private Integer bbeScore;
@@ -65,16 +74,35 @@ public class Book {
     @Column(name = "price")
     private Double price;
 
-//    @OneToMany(mappedBy = "book")
-//    private List<BookAuthor> authors;
-//
-//    @OneToMany(mappedBy = "book")
-//    private List<BookAward> awards;
-//
-//    @OneToMany(mappedBy = "book")
-//    private List<BookGenre> genres;
+    @Column(name = "ratings_by_stars")
+    private String ratingsByStars;
+
+    @OneToMany(mappedBy = "book")
+    private List<BookAuthor> authors;
+
+    @ManyToMany
+    @JoinTable(
+            name = "book_award",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "award_id")
+    )
+    private Set<Award> awards;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "book_genres", joinColumns = @JoinColumn(name = "book_id"))
+    @Column(name = "genre")
+    private Set<Genre> genres;
+
+    @ManyToMany
+    @JoinTable(
+            name = "book_character",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "character_id")
+    )
+    private Set<Characters> characters;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "publisher")
+    @JoinColumn(name = "publisher_id")
     private Publisher publisher;
 }
