@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Setter
@@ -19,7 +19,7 @@ public class Award {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "award")
-    private List<BookAward> books;
+    @ManyToMany(mappedBy = "awards")
+    private Set<Book> books;
 
 }
