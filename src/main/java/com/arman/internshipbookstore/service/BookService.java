@@ -14,6 +14,10 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +36,7 @@ public class BookService {
 
 
 
-    public List<BookDto> searchBooks(BookSearchCriteria bookSearchCriteria) {
+    public Page<BookDto> searchBooks(BookSearchCriteria bookSearchCriteria, Integer page, Integer size, String sort) {
 //        Specification<Book> specification = Specification.where(null);
 //
 //        if(bookSearchCriteria.getIsbn()!=null){
@@ -85,7 +89,7 @@ public class BookService {
         if(bookSearchCriteria.getIsbn()!=null)
                 isbn = Long.parseLong(bookSearchCriteria.getIsbn());
 
-        String authorName = bookSearchCriteria.getAuthor_name();
+        String authorName = bookSearchCriteria.getAuthorName();
         Set<Genre> genres = null;
         if(bookSearchCriteria.getGenres()!=null) {
             genres = new HashSet<>();
@@ -95,9 +99,21 @@ public class BookService {
         }
 
         String award = bookSearchCriteria.getAward();
+        Double rating = bookSearchCriteria.getRating();
+        Double ratingAbove = bookSearchCriteria.getRatingAbove();
+        if(rating!=null) ratingAbove=null;
 
-        List<Book> books = bookRepository.getBooksByCriteria(title,publisher,genres,isbn,authorName,award);
-        List<BookDto> bookDtos = bookMapper.mapToDtos(books);
+
+        Pageable pageable;
+        if(sort==null || sort.isBlank())
+            pageable = PageRequest.of(page, size);
+        else pageable = PageRequest.of(page,size, Sort.by(sort));
+
+
+        Page<Book> books = bookRepository.getBooksByCriteria(
+                title,publisher,genres, isbn,authorName,award,rating,ratingAbove,pageable);
+        Page<BookDto> bookDtos = books.map(bookMapper::mapToDto);
+
 
         return bookDtos;
     }

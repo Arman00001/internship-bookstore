@@ -3,6 +3,8 @@ package com.arman.internshipbookstore.persistence.repository;
 import com.arman.internshipbookstore.enums.Genre;
 import com.arman.internshipbookstore.persistence.entity.Book;
 import com.arman.internshipbookstore.persistence.entity.Publisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -16,7 +18,7 @@ import java.util.Set;
 public interface BookRepository extends JpaRepository<Book,Long> {
 
     @Query("""
-    SELECT b FROM Book b
+    SELECT DISTINCT b FROM Book b
     JOIN b.publisher p
     JOIN b.authors ba
     JOIN ba.author a
@@ -28,12 +30,18 @@ public interface BookRepository extends JpaRepository<Book,Long> {
       AND (LOWER(a.name) = LOWER(:authorName) OR :authorName IS NULL)
       AND(:genres IS NULL OR g IN :genres)
       AND(LOWER(aw.name) LIKE LOWER(CONCAT('%',:award,'%')) OR :award IS NULL)
-""") List<Book> getBooksByCriteria(@Param("title") String title,
-                                   @Param("publisher") String publisher,
-                                   @Param("genres") Set<Genre> genres,
-                                   @Param("isbn") Long isbn,
-                                   @Param("authorName") String authorName,
-                                   @Param("award") String award);
+      AND(b.rating = :rating OR :rating IS NULL)
+      AND(b.rating > :ratingAbove OR :ratingAbove IS NULL)
+""")
+    Page<Book> getBooksByCriteria(@Param("title") String title,
+                                  @Param("publisher") String publisher,
+                                  @Param("genres") Set<Genre> genres,
+                                  @Param("isbn") Long isbn,
+                                  @Param("authorName") String authorName,
+                                  @Param("award") String award,
+                                  @Param("rating") Double rating,
+                                  @Param("ratingAbove") Double ratingAbove,
+                                  Pageable pageable);
 
     Book getBookByIsbn(Long isbn);
 
