@@ -1,8 +1,12 @@
 package com.arman.internshipbookstore.service.mapper;
 
+import com.arman.internshipbookstore.enums.Genre;
 import com.arman.internshipbookstore.persistence.entity.Book;
 import com.arman.internshipbookstore.service.dto.BookDto;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class BookMapper {
@@ -55,7 +59,17 @@ public class BookMapper {
         bookDto.setPrice(book.getPrice());
         bookDto.setPublisherName(book.getPublisher().getName());
         bookDto.setRatingsByStars(book.getRatingsByStars());
+        bookDto.setGenres(book.getGenres());
 
         return bookDto;
+    }
+
+    public List<BookDto> mapToDtos(List<Book> books){
+        List<BookDto> bookDtos = new ArrayList<>();
+        for (Book book : books) {
+            bookDtos.add(mapToDto(book));
+        }
+
+        return bookDtos;
     }
 }
