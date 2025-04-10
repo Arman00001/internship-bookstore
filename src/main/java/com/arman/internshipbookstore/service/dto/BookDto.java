@@ -34,4 +34,5 @@ public class BookDto {
     private String ratingsByStars;
     private Set<Genre> genres;
     private String authorNames;
+    private String awards;
 }
