@@ -4,6 +4,7 @@ import com.arman.internshipbookstore.service.BookService;
 import com.arman.internshipbookstore.service.dto.BookDto;
 import com.arman.internshipbookstore.service.dto.BookSearchCriteria;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class BookController {
     }
 
     @PostMapping("/addBook")
+    @ResponseStatus(HttpStatus.CREATED)
     public void addBook(@RequestBody BookDto bookDto){
         bookService.save(bookDto);
     }
