@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.YearMonth;
@@ -37,7 +38,7 @@ public class CsvUploadService {
             DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH),
             DateTimeFormatter.ofPattern("yyyy")
     );
-
+    private final ImageDownloadService imageDownloadService;
 
 
     public void uploadFile(MultipartFile file) {
@@ -74,6 +75,12 @@ public class CsvUploadService {
 
                     List<Genre> genres = createOrGetGenresList(genres_);
                     setBookGenres(book, genres);
+
+                    String baseDir = Paths.get("images").toAbsolutePath().toString();
+
+                    imageDownloadService.uploadImage(book,baseDir,coverImg);
+
+
                 } catch (RuntimeException e) {
                     System.out.println(e.getMessage());
                 }
@@ -181,6 +188,21 @@ public class CsvUploadService {
         publisherDto.setName(publisher_name);
 
         return publisherService.save(publisherDto);
+    }
+
+    private List<AuthorDto> createAuthorDtosList(String authorName) {
+        List<AuthorDto> authorDtosList = new ArrayList<>();
+        String[] authors = authorName.split(", ");
+
+        for (String author_name : authors) {
+            AuthorDto authorDto = new AuthorDto();
+
+            authorDto.setName(author_name);
+
+            authorDtosList.add(authorDto);
+        }
+
+        return authorDtosList;
     }
 
 
@@ -302,6 +324,7 @@ public class CsvUploadService {
         throw new InvalidPublicationDateException("Book must have a publication date specified.");
     }
 
+
     private Double validatePrice(String price_) {
         if(price_.isEmpty()) return null;
         Double price;
@@ -373,22 +396,6 @@ public class CsvUploadService {
         }
         return pages;
     }
-
-    private List<AuthorDto> createAuthorDtosList(String authorName) {
-        List<AuthorDto> authorDtosList = new ArrayList<>();
-        String[] authors = authorName.split(", ");
-
-        for (String author_name : authors) {
-            AuthorDto authorDto = new AuthorDto();
-
-            authorDto.setName(author_name);
-
-            authorDtosList.add(authorDto);
-        }
-
-        return authorDtosList;
-    }
-
 
     private Long validateISBN(String isbn) throws IsbnIncorrectFormatException, IsbnDuplicationException {
         Long isbnLong;
