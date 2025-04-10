@@ -94,7 +94,9 @@ public class BookService {
             }
         }
 
-        List<Book> books = bookRepository.getBooksByCriteria(title,publisher,genres,isbn,authorName);
+        String award = bookSearchCriteria.getAward();
+
+        List<Book> books = bookRepository.getBooksByCriteria(title,publisher,genres,isbn,authorName,award);
         List<BookDto> bookDtos = bookMapper.mapToDtos(books);
 
         return bookDtos;

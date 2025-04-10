@@ -21,16 +21,19 @@ public interface BookRepository extends JpaRepository<Book,Long> {
     JOIN b.authors ba
     JOIN ba.author a
     JOIN b.genres g
+    JOIN b.awards aw
     WHERE (LOWER(b.title) LIKE LOWER(CONCAT('%',:title,'%')) OR :title IS NULL)
       AND (:isbn IS NULL OR b.isbn = :isbn)
       AND (LOWER(p.name) = LOWER(:publisher) OR :publisher IS NULL)
       AND (LOWER(a.name) = LOWER(:authorName) OR :authorName IS NULL)
       AND(:genres IS NULL OR g IN :genres)
+      AND(LOWER(aw.name) LIKE LOWER(CONCAT('%',:award,'%')) OR :award IS NULL)
 """) List<Book> getBooksByCriteria(@Param("title") String title,
                                    @Param("publisher") String publisher,
                                    @Param("genres") Set<Genre> genres,
                                    @Param("isbn") Long isbn,
-                                   @Param("authorName") String authorName);
+                                   @Param("authorName") String authorName,
+                                   @Param("award") String award);
 
     Book getBookByIsbn(Long isbn);
 

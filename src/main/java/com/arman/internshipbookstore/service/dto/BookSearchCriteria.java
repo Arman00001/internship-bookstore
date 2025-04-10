@@ -15,4 +15,5 @@ public class BookSearchCriteria {
     private String publisher;
     private String isbn;
     private List<String> genres;
+    private String award;
 }
