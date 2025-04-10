@@ -33,4 +33,5 @@ public class BookDto {
     private String publisherName;
     private String ratingsByStars;
     private Set<Genre> genres;
+    private String authorNames;
 }

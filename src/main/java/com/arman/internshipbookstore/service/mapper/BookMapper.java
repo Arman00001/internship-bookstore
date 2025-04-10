@@ -2,6 +2,7 @@ package com.arman.internshipbookstore.service.mapper;
 
 import com.arman.internshipbookstore.enums.Genre;
 import com.arman.internshipbookstore.persistence.entity.Book;
+import com.arman.internshipbookstore.persistence.entity.BookAuthor;
 import com.arman.internshipbookstore.service.dto.BookDto;
 import org.springframework.stereotype.Component;
 
@@ -60,6 +61,16 @@ public class BookMapper {
         bookDto.setPublisherName(book.getPublisher().getName());
         bookDto.setRatingsByStars(book.getRatingsByStars());
         bookDto.setGenres(book.getGenres());
+
+        StringBuilder stringBuilder = new StringBuilder();
+        List<BookAuthor> authors = book.getAuthors();
+
+        for (int i = 0; i < authors.size(); i++) {
+            stringBuilder.append(authors.get(i).getAuthor().getName());
+            if(i+1<authors.size()) stringBuilder.append(", ");
+        }
+
+        bookDto.setAuthorNames(stringBuilder.toString());
 
         return bookDto;
     }
