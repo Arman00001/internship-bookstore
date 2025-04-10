@@ -1,10 +1,12 @@
 package com.arman.internshipbookstore.service.dto;
 
+import com.arman.internshipbookstore.enums.Genre;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -30,4 +32,5 @@ public class BookDto {
     private Double price;
     private String publisherName;
     private String ratingsByStars;
+    private Set<Genre> genres;
 }
