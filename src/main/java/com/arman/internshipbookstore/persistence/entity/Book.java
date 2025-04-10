@@ -74,7 +74,12 @@ public class Book {
     @Column(name = "price")
     private Double price;
 
+    @Column(name = "image_path")
+    private String imagePath;
+
+//    @ElementCollection
     @Column(name = "ratings_by_stars")
+//    private List<Integer> ratingsByStars;
     private String ratingsByStars;
 
     @OneToMany(mappedBy = "book")
