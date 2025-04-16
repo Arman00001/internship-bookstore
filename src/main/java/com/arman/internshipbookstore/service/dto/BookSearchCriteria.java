@@ -13,7 +13,7 @@ public class BookSearchCriteria {
     private String title;
     private String authorName;
     private String publisher;
-    private String isbn;
+    private Long isbn;
     private List<String> genres;
     private String award;
     private Double ratingAbove;
