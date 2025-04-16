@@ -10,6 +10,6 @@ import lombok.Setter;
 public class BookAuthorDto {
     private Long id;
     private Long authorId;
-    private String bookId;
+    private Long bookId;
     private String role;
 }
