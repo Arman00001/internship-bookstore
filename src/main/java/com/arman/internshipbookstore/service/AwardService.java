@@ -7,6 +7,9 @@ import com.arman.internshipbookstore.service.mapper.AwardMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class AwardService {
@@ -24,5 +27,13 @@ public class AwardService {
         Award award1 = awardRepository.save(award);
 
         return award1;
+    }
+
+    public Set<String> findAllAwardNames() {
+        return awardRepository.findAllAwardNames();
+    }
+
+    public List<Award> findAll() {
+        return awardRepository.findAll();
     }
 }
