@@ -7,6 +7,8 @@ import com.arman.internshipbookstore.service.mapper.CharacterMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CharacterService {
@@ -28,5 +30,9 @@ public class CharacterService {
         Characters characters1 = characterRepository.save(characters);
 
         return characters1;
+    }
+
+    public List<Characters> findAll() {
+        return characterRepository.findAll();
     }
 }
