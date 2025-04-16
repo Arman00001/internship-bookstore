@@ -1,22 +1,18 @@
 package com.arman.internshipbookstore.service.mapper;
 
-import com.arman.internshipbookstore.enums.Genre;
-import com.arman.internshipbookstore.persistence.entity.Award;
 import com.arman.internshipbookstore.persistence.entity.Book;
-import com.arman.internshipbookstore.persistence.entity.BookAuthor;
 import com.arman.internshipbookstore.service.dto.BookDto;
+import com.arman.internshipbookstore.service.exception.IncorrectStarRatingsFormat;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class BookMapper {
     public Book mapDtoToBook(BookDto bookDto){
         Book book = new Book();
 
-        book.setBookId(bookDto.getBookId());
         book.setTitle(bookDto.getTitle());
         book.setDescription(bookDto.getDescription());
         book.setSeries(bookDto.getSeries());
@@ -34,18 +30,39 @@ public class BookMapper {
         book.setBbeScore(bookDto.getBbeScore());
         book.setBbeVotes(bookDto.getBbeVotes());
         book.setPrice(bookDto.getPrice());
-        book.setRatingsByStars(bookDto.getRatingsByStars());
+
+        String[] stars_ = bookDto.getRatingsByStars().replace("[","").
+                replace("]","").split(",");
+        if(stars_.length==0)
+            book.addStarRatings(new Integer[0]);
+        else {
+            Integer[] stars = new Integer[5];
+            try {
+                for (int i = 0; i < 5; i++) {
+                    Integer val = Integer.parseInt(stars_[i].replace("'","").trim());
+                    if(val<0) throw new NumberFormatException();
+                    stars[i] = val;
+                }
+            } catch (NumberFormatException e){
+                throw new IncorrectStarRatingsFormat("Star ratings should be positive integer numbers only!");
+            }
+            book.addStarRatings(stars);
+        }
+
+        book.setImagePath(bookDto.getImageUrl());
 
         return book;
     }
 
+//    private void setRatingsByStars(Book book, String ratings)
+
     public BookDto mapToDto(Book book){
         BookDto bookDto = new BookDto();
 
-        bookDto.setBookId(book.getBookId());
+        bookDto.setId(book.getId());
         bookDto.setTitle(book.getTitle());
         bookDto.setDescription(book.getDescription());
-        bookDto.setSeries(bookDto.getSeries());
+        bookDto.setSeries(book.getSeries());
         bookDto.setRating(book.getRating());
         bookDto.setPages(book.getPages());
         bookDto.setIsbn(book.getIsbn());
@@ -65,20 +82,27 @@ public class BookMapper {
         bookDto.setGenres(book.getGenres());
 
         StringBuilder stringBuilder = new StringBuilder();
-        List<BookAuthor> authors = book.getAuthors();
 
-        for (int i = 0; i < authors.size(); i++) {
-            stringBuilder.append(authors.get(i).getAuthor().getName());
-            if(i+1<authors.size()) stringBuilder.append(", ");
-        }
+        book.getBookAuthors().forEach(bookAuthor -> stringBuilder.
+                append(bookAuthor.getAuthor().getName()).append(" (").
+                append(bookAuthor.getRole()).append("), "));
 
-        bookDto.setAuthorNames(stringBuilder.toString());
+        if(stringBuilder.length()>2)
+            bookDto.setAuthorNames(stringBuilder.substring(0,stringBuilder.length()-2));
+
 
         StringBuilder sb1 = new StringBuilder();
 
-        book.getAwards().forEach(award -> sb1.append(award.getName()+", "));
+        book.getBookAwards().forEach(bookAward -> sb1.
+                append(bookAward.getAward().getName()).append("(").
+                append(bookAward.getYear()).append(")").append(", "));
+
         if(sb1.length()>2)
             bookDto.setAwards(sb1.substring(0,sb1.length()-2));
+
+        String imageUrl = book.getImagePath();
+        if(!imageUrl.startsWith("Download"))
+            bookDto.setImageUrl(imageUrl);
 
         return bookDto;
     }
