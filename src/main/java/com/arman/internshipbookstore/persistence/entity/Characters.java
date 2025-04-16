@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -13,13 +14,18 @@ import java.util.Set;
 public class Characters {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "character_id_seq")
+    @SequenceGenerator(
+            name = "character_id_seq",
+            sequenceName = "character_id_seq",
+            allocationSize = 50
+    )
     private Long id;
 
     @Column(name = "name", unique = true)
     private String name;
 
     @ManyToMany(mappedBy = "characters")
-    private Set<Book> books;
+    private Set<Book> books = new HashSet<>();
 
 }
