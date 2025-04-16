@@ -9,16 +9,12 @@ import com.arman.internshipbookstore.service.dto.BookSearchCriteria;
 import com.arman.internshipbookstore.service.dto.PublisherDto;
 import com.arman.internshipbookstore.service.exception.BookNotFoundException;
 import com.arman.internshipbookstore.service.mapper.BookMapper;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -36,60 +32,16 @@ public class BookService {
 
 
 
-    public Page<BookDto> searchBooks(BookSearchCriteria bookSearchCriteria, Integer page, Integer size, String sort) {
-//        Specification<Book> specification = Specification.where(null);
-//
-//        if(bookSearchCriteria.getIsbn()!=null){
-//            Long isbn = Long.parseLong(bookSearchCriteria.getIsbn());
-//            specification.and(new Specification<Book>() {
-//                @Override
-//                public Predicate toPredicate(Root<Book> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-//                    return criteriaBuilder.equal(root.get("isbn"),isbn);
-//                }
-//            });
-//        }
-//
-//        if(bookSearchCriteria.getTitle()!=null){
-//            specification.and(new Specification<Book>() {
-//                @Override
-//                public Predicate toPredicate(Root<Book> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-//                    return criteriaBuilder.equal(root.get("title"), bookSearchCriteria.getTitle());
-//                }
-//            });
-//        }
-//
-//        if(bookSearchCriteria.getPublisher()!=null){
-//            Publisher publisher = publisherService.getPublisherByName(bookSearchCriteria.getPublisher());
-//            specification.and(new Specification<Book>() {
-//                @Override
-//                public Predicate toPredicate(Root<Book> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-//                    return criteriaBuilder.equal(root.get("publisher"), publisher);
-//                }
-//            });
-//        }
-//
-//        if (bookSearchCriteria.getGenres()!=null){
-//            Set<Genre> genres = new HashSet<>();
-//            for (String genre : bookSearchCriteria.getGenres()) {
-//                genres.add(Genre.fromString(genre));
-//            }
-//
-//            specification.and(new Specification<Book>() {
-//                @Override
-//                public Predicate toPredicate(Root<Book> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-//                    return criteriaBuilder.equal(root.get("genres"), genres);
-//                }
-//            });
-//        }
-//
-//        List<Book> books = bookRepository.findAll(specification);
+    public PagedModel<BookDto> searchBooks(BookSearchCriteria bookSearchCriteria, Integer page, Integer size, String sort) {
         String title = bookSearchCriteria.getTitle();
         String publisher = bookSearchCriteria.getPublisher();
-        Long isbn = null;
-        if(bookSearchCriteria.getIsbn()!=null)
-                isbn = Long.parseLong(bookSearchCriteria.getIsbn());
-
+        Long isbn = bookSearchCriteria.getIsbn();
         String authorName = bookSearchCriteria.getAuthorName();
+        String award = bookSearchCriteria.getAward();
+        Double rating = bookSearchCriteria.getRating();
+        Double ratingAbove = bookSearchCriteria.getRatingAbove();
+        if(rating!=null) ratingAbove=null;
+
         Set<Genre> genres = null;
         if(bookSearchCriteria.getGenres()!=null) {
             genres = new HashSet<>();
@@ -97,12 +49,6 @@ public class BookService {
                 genres.add(Genre.fromString(genre));
             }
         }
-
-        String award = bookSearchCriteria.getAward();
-        Double rating = bookSearchCriteria.getRating();
-        Double ratingAbove = bookSearchCriteria.getRatingAbove();
-        if(rating!=null) ratingAbove=null;
-
 
         Pageable pageable;
         if(sort==null || sort.isBlank())
@@ -112,10 +58,12 @@ public class BookService {
 
         Page<Book> books = bookRepository.getBooksByCriteria(
                 title,publisher,genres, isbn,authorName,award,rating,ratingAbove,pageable);
+
         Page<BookDto> bookDtos = books.map(bookMapper::mapToDto);
 
+        PagedModel<BookDto> pagedModel = new PagedModel<>(bookDtos);
 
-        return bookDtos;
+        return pagedModel;
     }
 
 
@@ -138,8 +86,8 @@ public class BookService {
         return bookDtos;
     }
 
-    public Book getBookByBookId(String bookId){
-        Book book = bookRepository.getBookByBookId(bookId);
+    public Book getBookByBookId(Long bookId){
+        Book book = bookRepository.getBookById(bookId);
 
         return book;
     }
@@ -164,4 +112,11 @@ public class BookService {
         return bookRepository.getBookByIsbn(isbn);
     }
 
+    public Set<Long> findAllIsbn(){
+        return bookRepository.findAllIsbn();
+    }
+
+    public void saveAll(List<Book> books) {
+        bookRepository.saveAll(books);
+    }
 }
