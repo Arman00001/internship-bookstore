@@ -7,6 +7,9 @@ import com.arman.internshipbookstore.service.mapper.AuthorMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class AuthorService {
@@ -29,5 +32,13 @@ public class AuthorService {
         Author author1 = authorRepository.save(author);
 
         return author1;
+    }
+
+    public Set<String> findAllNames() {
+        return authorRepository.findAllNames();
+    }
+
+    public List<Author> findAll() {
+        return authorRepository.findAll();
     }
 }
