@@ -6,7 +6,6 @@ import com.arman.internshipbookstore.persistence.entity.Publisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -20,10 +19,11 @@ public interface BookRepository extends JpaRepository<Book,Long> {
     @Query("""
     SELECT DISTINCT b FROM Book b
     JOIN b.publisher p
-    JOIN b.authors ba
+    JOIN b.bookAuthors ba
     JOIN ba.author a
     JOIN b.genres g
-    JOIN b.awards aw
+    JOIN b.bookAwards baw
+    JOIN baw.award aw
     WHERE (LOWER(b.title) LIKE LOWER(CONCAT('%',:title,'%')) OR :title IS NULL)
       AND (:isbn IS NULL OR b.isbn = :isbn)
       AND (LOWER(p.name) = LOWER(:publisher) OR :publisher IS NULL)
@@ -45,7 +45,7 @@ public interface BookRepository extends JpaRepository<Book,Long> {
 
     Book getBookByIsbn(Long isbn);
 
-    Book getBookByBookId(String bookId);
+    Book getBookById(Long id);
 
     List<Book> getBooksByTitle(String title);
 
@@ -54,4 +54,7 @@ public interface BookRepository extends JpaRepository<Book,Long> {
     List<Book> getBooksByGenres(Set<Genre> genres);
 
     List<Book> getBookByPublisher(Publisher publisher);
+
+    @Query("SELECT b.isbn FROM Book b")
+    Set<Long> findAllIsbn();
 }
