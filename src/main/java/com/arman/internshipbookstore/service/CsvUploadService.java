@@ -4,6 +4,7 @@ import com.arman.internshipbookstore.persistence.entity.*;
 import com.arman.internshipbookstore.service.dto.*;
 import com.arman.internshipbookstore.service.exception.*;
 import com.arman.internshipbookstore.enums.*;
+import com.arman.internshipbookstore.service.mapper.AsyncImageDownloaderService;
 import com.arman.internshipbookstore.service.mapper.BookMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
@@ -30,9 +31,11 @@ public class CsvUploadService {
     private final AuthorService authorService;
     private final AwardService awardService;
     private final BookService bookService;
-    private final BookAuthorService bookAuthorService;
     private final PublisherService publisherService;
     private final CharacterService characterService;
+
+    private final BookMapper bookMapper;
+    private final AsyncImageDownloaderService asyncImageDownloaderService;
 
     private static final List<DateTimeFormatter> DATE_FORMATTERS = List.of(
             DateTimeFormatter.ofPattern("M/d/yy"),
@@ -40,8 +43,6 @@ public class CsvUploadService {
             DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH),
             DateTimeFormatter.ofPattern("yyyy")
     );
-    private final ImageDownloadService imageDownloadService;
-    private final BookMapper bookMapper;
 
 
     public void uploadFile(MultipartFile file) {
@@ -100,10 +101,8 @@ public class CsvUploadService {
                     setBookAwards(book, awardMap, awards_);
                     setBookGenres(book, genres_);
 
-                    book.setImagePath("Download " + coverImg);
-//                    String baseDir = Paths.get("images").toAbsolutePath().toString();
-
-//                    imageDownloadService.uploadImage(book,baseDir,coverImg);
+                    if(!coverImg.isBlank())
+                        book.setImagePath("Download " + coverImg);
 
                     books.add(book);
 
@@ -114,6 +113,9 @@ public class CsvUploadService {
 
             }
             bookService.saveAll(books);
+
+            asyncImageDownloaderService.scheduleImageDownloads();
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
