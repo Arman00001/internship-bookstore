@@ -12,7 +12,7 @@ import java.util.Set;
 @Getter
 @RequiredArgsConstructor
 public class BookDto {
-    private String bookId;
+    private Long id;
     private String title;
     private String description;
     private String series;
@@ -35,4 +35,5 @@ public class BookDto {
     private Set<Genre> genres;
     private String authorNames;
     private String awards;
+    private String imageUrl;
 }
