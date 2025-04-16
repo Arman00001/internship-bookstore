@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -20,8 +22,12 @@ import java.util.Set;
 public class Book {
 
     @Id
-    @Column(name = "book_id", nullable = false, unique = true)
-    private String bookId;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "book_id_seq")
+    @SequenceGenerator(
+            name = "book_id_seq",
+            sequenceName = "book_id_seq",
+            allocationSize = 50)
+    private Long id;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -78,20 +84,30 @@ public class Book {
     private String imagePath;
 
 //    @ElementCollection
-    @Column(name = "ratings_by_stars")
+//    @Column(name = "ratings_by_stars")
 //    private List<Integer> ratingsByStars;
-    private String ratingsByStars;
+//    private String ratingsByStars;
 
-    @OneToMany(mappedBy = "book")
-    private List<BookAuthor> authors;
+    @Column(name = "one_star_ratings")
+    private Integer oneStarRatings;
 
-    @ManyToMany
-    @JoinTable(
-            name = "book_award",
-            joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "award_id")
-    )
-    private Set<Award> awards;
+    @Column(name = "two_star_ratings")
+    private Integer twoStarRatings;
+
+    @Column(name = "three_star_ratings")
+    private Integer threeStarRatings;
+
+    @Column(name = "four_star_ratings")
+    private Integer fourStarRatings;
+
+    @Column(name = "five_star_ratings")
+    private Integer fiveStarRatings;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.PERSIST)
+    private List<BookAuthor> bookAuthors = new ArrayList<>();
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.PERSIST)
+    private List<BookAward> bookAwards = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @Enumerated(EnumType.STRING)
@@ -99,15 +115,65 @@ public class Book {
     @Column(name = "genre")
     private Set<Genre> genres;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "book_character",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "character_id")
     )
-    private Set<Characters> characters;
+    private Set<Characters> characters = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "publisher_id")
     private Publisher publisher;
+
+
+    public void addBookAuthor(Author author, String role){
+        BookAuthor bookAuthor = new BookAuthor();
+        bookAuthor.setAuthor(author);
+        bookAuthor.setBook(this);
+        bookAuthor.setRole(role);
+        bookAuthors.add(bookAuthor);
+        author.getBooks().add(bookAuthor);
+    }
+
+    public void addAward(Award award, Integer year){
+        BookAward bookAward = new BookAward();
+        bookAward.setAward(award);
+        bookAward.setYear(year);
+        bookAward.setBook(this);
+        bookAwards.add(bookAward);
+        award.getBookAwards().add(bookAward);
+    }
+
+
+    public void addCharacter(Characters character){
+        characters.add(character);
+        character.getBooks().add(this);
+    }
+
+    public void addStarRatings(Integer[] stars){
+        if(stars.length==0){
+            oneStarRatings = 0;
+            twoStarRatings = 0;
+            threeStarRatings = 0;
+            fourStarRatings = 0;
+            fiveStarRatings = 0;
+        }
+        else {
+            oneStarRatings = stars[0];
+            twoStarRatings = stars[1];
+            threeStarRatings = stars[2];
+            fourStarRatings = stars[3];
+            fiveStarRatings = stars[4];
+        }
+    }
+
+    public String getRatingsByStars(){
+        return oneStarRatings+", "+
+                twoStarRatings+", "+
+                threeStarRatings+", "+
+                fourStarRatings+", "+
+                fiveStarRatings;
+    }
 }
