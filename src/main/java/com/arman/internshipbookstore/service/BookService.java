@@ -108,6 +108,10 @@ public class BookService {
         return book1;
     }
 
+    public Set<Book> findAllWithoutImageDownloaded(){
+        return bookRepository.findAllWithoutImageDownloaded();
+    }
+
     public Book getBookByIsbn(Long isbn) {
         return bookRepository.getBookByIsbn(isbn);
     }

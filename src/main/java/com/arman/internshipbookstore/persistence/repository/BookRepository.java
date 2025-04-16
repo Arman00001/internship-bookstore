@@ -18,12 +18,12 @@ public interface BookRepository extends JpaRepository<Book,Long> {
 
     @Query("""
     SELECT DISTINCT b FROM Book b
-    JOIN b.publisher p
-    JOIN b.bookAuthors ba
-    JOIN ba.author a
-    JOIN b.genres g
-    JOIN b.bookAwards baw
-    JOIN baw.award aw
+    INNER JOIN b.publisher p
+    INNER JOIN b.bookAuthors ba
+    INNER JOIN ba.author a
+    INNER JOIN b.genres g
+    INNER JOIN b.bookAwards baw
+    INNER JOIN baw.award aw
     WHERE (LOWER(b.title) LIKE LOWER(CONCAT('%',:title,'%')) OR :title IS NULL)
       AND (:isbn IS NULL OR b.isbn = :isbn)
       AND (LOWER(p.name) = LOWER(:publisher) OR :publisher IS NULL)
@@ -57,4 +57,7 @@ public interface BookRepository extends JpaRepository<Book,Long> {
 
     @Query("SELECT b.isbn FROM Book b")
     Set<Long> findAllIsbn();
+
+    @Query("SELECT b FROM Book b WHERE b.imagePath LIKE 'Download%'")
+    Set<Book> findAllWithoutImageDownloaded();
 }
