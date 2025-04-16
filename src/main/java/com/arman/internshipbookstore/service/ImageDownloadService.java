@@ -21,7 +21,8 @@ import java.nio.file.StandardCopyOption;
 @RequiredArgsConstructor
 public class ImageDownloadService {
 
-    public void uploadImage(Book book, String baseDir, String imageUrl) throws IOException {
+    public void uploadImage(Book book, String baseDir) throws IOException {
+        String imageUrl = book.getImagePath().replaceFirst("Download ","");
         Files.createDirectories(Paths.get(baseDir)); // Ensure it exists
         String thumbnails = Paths.get("images/thumbnails").toAbsolutePath().toString();
         if(isImageUrlValid(imageUrl)){
@@ -64,11 +65,9 @@ public class ImageDownloadService {
         return dir.resolve(sanitizedTitle + ".jpg").toString();
     }
 
-    public void createThumbnail(String originalPath, String thumbnailPath) throws IOException {
+    private void createThumbnail(String originalPath, String thumbnailPath) throws IOException {
         Thumbnails.of(new File(originalPath))
                 .size(100, 150)
                 .toFile(new File(thumbnailPath));
     }
-
-
 }
