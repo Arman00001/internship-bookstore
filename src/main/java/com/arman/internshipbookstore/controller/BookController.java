@@ -4,8 +4,7 @@ import com.arman.internshipbookstore.service.BookService;
 import com.arman.internshipbookstore.service.dto.BookDto;
 import com.arman.internshipbookstore.service.dto.BookSearchCriteria;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,10 +17,10 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping("/searchBook")
-    public Page<BookDto> getBooks(@ModelAttribute BookSearchCriteria bookSearchCriteria,
-                                  @RequestParam("page") Integer page,
-                                  @RequestParam("size") Integer size,
-                                  @RequestParam(required = false, name = "sort") String sort) {
+    public PagedModel<BookDto> getBooks(@ModelAttribute BookSearchCriteria bookSearchCriteria,
+                                        @RequestParam("page") Integer page,
+                                        @RequestParam("size") Integer size,
+                                        @RequestParam(required = false, name = "sort") String sort) {
         return bookService.searchBooks(bookSearchCriteria, page, size, sort);
     }
 
