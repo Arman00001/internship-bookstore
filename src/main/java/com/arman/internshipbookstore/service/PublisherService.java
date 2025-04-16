@@ -7,6 +7,8 @@ import com.arman.internshipbookstore.service.mapper.PublisherMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PublisherService {
@@ -33,5 +35,9 @@ public class PublisherService {
         Publisher publisher1 = publisherRepository.save(publisher);
 
         return publisher1;
+    }
+
+    public List<Publisher> findAll() {
+        return publisherRepository.findAll();
     }
 }
