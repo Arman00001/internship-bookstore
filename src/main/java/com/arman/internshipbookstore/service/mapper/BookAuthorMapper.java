@@ -7,20 +7,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class BookAuthorMapper {
 
-//    public BookAuthor mapDtoToBookAuthor(BookAuthorDto bookAuthorDto){
-//        BookAuthor bookAuthor = new BookAuthorDto();
-//
-//        bookAuthor.setRole(bookAuthor.getRole());
-//
-//        return bookAuthor;
-//    }
-
     public BookAuthorDto mapToDto(BookAuthor bookAuthor){
         BookAuthorDto bookAuthorDto = new BookAuthorDto();
 
         bookAuthorDto.setId(bookAuthor.getId());
         bookAuthorDto.setAuthorId(bookAuthor.getId());
-        bookAuthorDto.setBookId(bookAuthor.getBook().getBookId());
+        bookAuthorDto.setBookId(bookAuthor.getBook().getId());
         bookAuthorDto.setRole(bookAuthor.getRole());
 
         return bookAuthorDto;
