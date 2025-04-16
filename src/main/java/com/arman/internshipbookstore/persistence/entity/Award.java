@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -13,13 +16,18 @@ import java.util.Set;
 public class Award {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "award_id_seq")
+    @SequenceGenerator(
+            name = "award_id_seq",
+            sequenceName = "award_id_seq",
+            allocationSize = 50
+    )
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(columnDefinition = "TEXT",name = "name", nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "awards")
-    private Set<Book> books;
+    @OneToMany(mappedBy = "award")
+    private List<BookAward> bookAwards = new ArrayList<>();
 
 }
