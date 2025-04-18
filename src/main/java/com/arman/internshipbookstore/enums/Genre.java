@@ -58,7 +58,7 @@ public enum Genre {
 
     public static Genre fromString(String value) {
         try {
-            return Genre.valueOf(value.trim().toUpperCase().replace(" ", "_").replace("-", "_"));
+            return Genre.valueOf(value.replace("'","").trim().toUpperCase().replace(" ", "_").replace("-", "_"));
         } catch (IllegalArgumentException e) {
             return Genre.UNKNOWN;  // Return UNKNOWN if genre doesn't match
         }
