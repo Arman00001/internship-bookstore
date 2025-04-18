@@ -32,7 +32,7 @@ public class AsyncImageDownloaderService {
         try {
             books = bookService.findAllWithoutImageDownloaded();
             for (Book book : books) {
-                imageDownloadService.uploadImage(book,baseDir);
+                imageDownloadService.downloadImage(book,baseDir);
             }
 
         } catch (Exception e) {
