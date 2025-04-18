@@ -8,24 +8,24 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("/award")
 @RequiredArgsConstructor
 public class AwardController {
 
     private final AwardService awardService;
 
-    @GetMapping("/getAwardByName")
+    @GetMapping("/get_by_name")
     public Award getAwardByName(@RequestParam String name){
         return awardService.getAwardByName(name);
     }
 
-    @PostMapping("/addAward")
+    @PostMapping("/add")
     @ResponseStatus(HttpStatus.CREATED)
     public AwardDto addAward(@RequestBody @Valid AwardDto awardDto){
         return awardService.addAward(awardDto);
     }
 
-    @DeleteMapping("/deleteAward")
+    @DeleteMapping("/delete")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void deleteAward(@RequestParam("id") Long id){
         awardService.delete(id);
