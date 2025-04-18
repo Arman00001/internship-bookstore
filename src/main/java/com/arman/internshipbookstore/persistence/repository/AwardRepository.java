@@ -13,4 +13,6 @@ public interface AwardRepository extends JpaRepository<Award, Long> {
 
     @Query("SELECT aw.name FROM Award aw")
     Set<String> findAllAwardNames();
+
+    Award getAwardById(Long id);
 }

@@ -14,4 +14,6 @@ public interface AuthorRepository extends JpaRepository<Author, Long> {
 
     @Query("SELECT a.name FROM Author a")
     Set<String> findAllNames();
+
+    Author getAuthorById(Long id);
 }
