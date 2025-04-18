@@ -1,10 +1,11 @@
 package com.arman.internshipbookstore.service.dto;
 
+import com.arman.internshipbookstore.enums.Genre;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -14,7 +15,7 @@ public class BookSearchCriteria {
     private String authorName;
     private String publisher;
     private Long isbn;
-    private List<String> genres;
+    private Set<Genre> genres;
     private String award;
     private Double ratingAbove;
     private Double rating;
