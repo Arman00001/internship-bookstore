@@ -3,7 +3,9 @@ package com.arman.internshipbookstore.controller;
 import com.arman.internshipbookstore.persistence.entity.Award;
 import com.arman.internshipbookstore.service.AwardService;
 import com.arman.internshipbookstore.service.dto.AwardDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,7 +20,14 @@ public class AwardController {
     }
 
     @PostMapping("/addAward")
-    public void addAward(@RequestBody AwardDto awardDto){
-        awardService.save(awardDto);
+    @ResponseStatus(HttpStatus.CREATED)
+    public AwardDto addAward(@RequestBody @Valid AwardDto awardDto){
+        return awardService.addAward(awardDto);
+    }
+
+    @DeleteMapping("/deleteAward")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void deleteAward(@RequestParam("id") Long id){
+        awardService.delete(id);
     }
 }
