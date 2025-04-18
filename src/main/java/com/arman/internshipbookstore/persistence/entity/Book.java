@@ -13,8 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-//edit publish date
-//
+
 @Entity
 @Setter
 @Getter
@@ -83,30 +82,31 @@ public class Book {
     @Column(name = "image_path")
     private String imagePath;
 
-//    @ElementCollection
-//    @Column(name = "ratings_by_stars")
-//    private List<Integer> ratingsByStars;
-//    private String ratingsByStars;
-
     @Column(name = "one_star_ratings")
-    private Integer oneStarRatings;
+    private Integer oneStarRatings = 0;
 
     @Column(name = "two_star_ratings")
-    private Integer twoStarRatings;
+    private Integer twoStarRatings = 0;
 
     @Column(name = "three_star_ratings")
-    private Integer threeStarRatings;
+    private Integer threeStarRatings = 0;
 
     @Column(name = "four_star_ratings")
-    private Integer fourStarRatings;
+    private Integer fourStarRatings = 0;
 
     @Column(name = "five_star_ratings")
-    private Integer fiveStarRatings;
+    private Integer fiveStarRatings = 0;
 
-    @OneToMany(mappedBy = "book", cascade = CascadeType.PERSIST)
+    @OneToMany(
+            mappedBy = "book",
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+            orphanRemoval = true)
     private List<BookAuthor> bookAuthors = new ArrayList<>();
 
-    @OneToMany(mappedBy = "book", cascade = CascadeType.PERSIST)
+    @OneToMany(
+            mappedBy = "book",
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+            orphanRemoval = true)
     private List<BookAward> bookAwards = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
@@ -153,19 +153,14 @@ public class Book {
     }
 
     public void addStarRatings(Integer[] stars){
-        if(stars.length==0){
-            oneStarRatings = 0;
-            twoStarRatings = 0;
-            threeStarRatings = 0;
-            fourStarRatings = 0;
-            fiveStarRatings = 0;
-        }
-        else {
-            oneStarRatings = stars[0];
-            twoStarRatings = stars[1];
-            threeStarRatings = stars[2];
-            fourStarRatings = stars[3];
-            fiveStarRatings = stars[4];
+        if(stars.length!=0){
+            oneStarRatings += stars[0];
+            twoStarRatings += stars[1];
+            threeStarRatings += stars[2];
+            fourStarRatings += stars[3];
+            fiveStarRatings += stars[4];
+            numRatings = oneStarRatings+twoStarRatings+threeStarRatings+fourStarRatings+fiveStarRatings;
+            rating = ((oneStarRatings*1+twoStarRatings*2+threeStarRatings*3+fourStarRatings*4+fiveStarRatings*5)/(double)numRatings);
         }
     }
 
