@@ -21,13 +21,13 @@ import java.nio.file.StandardCopyOption;
 @RequiredArgsConstructor
 public class ImageDownloadService {
 
-    public void uploadImage(Book book, String baseDir) throws IOException {
+    public void downloadImage(Book book, String baseDir) throws IOException {
         String imageUrl = book.getImagePath().replaceFirst("Download ","");
         Files.createDirectories(Paths.get(baseDir)); // Ensure it exists
         String thumbnails = Paths.get("images/thumbnails").toAbsolutePath().toString();
         if(isImageUrlValid(imageUrl)){
             String savePath = getSavePathForBook(book, baseDir);
-            downloadImage(imageUrl, savePath);
+            download(imageUrl, savePath);
             book.setImagePath(savePath);
             createThumbnail(savePath, getSavePathForBook(book, thumbnails));
             return;
@@ -36,7 +36,7 @@ public class ImageDownloadService {
         throw new InvalidImageUrlException("The given image URL is broken: %s".formatted(imageUrl));
     }
 
-    private void downloadImage(String imageUrl, String savePath) throws MalformedURLException, IOException {
+    private void download(String imageUrl, String savePath) throws MalformedURLException, IOException {
         URL url = new URL(imageUrl);
         try (InputStream in = url.openStream()) {
             Files.copy(in, Paths.get(savePath), StandardCopyOption.REPLACE_EXISTING);
@@ -46,7 +46,7 @@ public class ImageDownloadService {
     private boolean isImageUrlValid(String imageUrl) {
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(imageUrl).openConnection();
-            connection.setRequestMethod("HEAD"); // faster than GET
+            connection.setRequestMethod("HEAD");
             connection.setConnectTimeout(3000);
             connection.connect();
             return connection.getResponseCode() == 200;
