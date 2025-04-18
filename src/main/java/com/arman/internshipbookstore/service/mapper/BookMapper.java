@@ -10,7 +10,7 @@ import java.util.List;
 
 @Component
 public class BookMapper {
-    public Book mapDtoToBook(BookDto bookDto){
+    public Book mapDtoToBook(BookDto bookDto) {
         Book book = new Book();
 
         book.setTitle(bookDto.getTitle());
@@ -31,19 +31,19 @@ public class BookMapper {
         book.setBbeVotes(bookDto.getBbeVotes());
         book.setPrice(bookDto.getPrice());
 
-        String[] stars_ = bookDto.getRatingsByStars().replace("[","").
-                replace("]","").split(",");
-        if(stars_.length==0)
+        String[] stars_ = bookDto.getRatingsByStars().replace("[", "").
+                replace("]", "").split(",");
+        if (stars_.length == 0)
             book.addStarRatings(new Integer[0]);
         else {
             Integer[] stars = new Integer[5];
             try {
                 for (int i = 0; i < 5; i++) {
-                    Integer val = Integer.parseInt(stars_[i].replace("'","").trim());
-                    if(val<0) throw new NumberFormatException();
+                    Integer val = Integer.parseInt(stars_[i].replace("'", "").trim());
+                    if (val < 0) throw new NumberFormatException();
                     stars[i] = val;
                 }
-            } catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
                 throw new IncorrectStarRatingsFormat("Star ratings should be positive integer numbers only!");
             }
             book.addStarRatings(stars);
@@ -54,9 +54,8 @@ public class BookMapper {
         return book;
     }
 
-//    private void setRatingsByStars(Book book, String ratings)
 
-    public BookDto mapToDto(Book book){
+    public BookDto mapToDto(Book book) {
         BookDto bookDto = new BookDto();
 
         bookDto.setId(book.getId());
@@ -82,32 +81,39 @@ public class BookMapper {
         bookDto.setGenres(book.getGenres());
 
         StringBuilder stringBuilder = new StringBuilder();
-
         book.getBookAuthors().forEach(bookAuthor -> stringBuilder.
                 append(bookAuthor.getAuthor().getName()).append(" (").
                 append(bookAuthor.getRole()).append("), "));
 
-        if(stringBuilder.length()>2)
-            bookDto.setAuthorNames(stringBuilder.substring(0,stringBuilder.length()-2));
+        if (stringBuilder.length() > 2)
+            bookDto.setAuthorNames(stringBuilder.substring(0, stringBuilder.length() - 2));
 
 
-        StringBuilder sb1 = new StringBuilder();
-
-        book.getBookAwards().forEach(bookAward -> sb1.
+        stringBuilder.setLength(0);
+        book.getBookAwards().forEach(bookAward -> stringBuilder.
                 append(bookAward.getAward().getName()).append("(").
                 append(bookAward.getYear()).append(")").append(", "));
 
-        if(sb1.length()>2)
-            bookDto.setAwards(sb1.substring(0,sb1.length()-2));
+        if (stringBuilder.length() > 2)
+            bookDto.setAwards(stringBuilder.substring(0, stringBuilder.length() - 2));
+
+
+        stringBuilder.setLength(0);
+        book.getCharacters().forEach(character -> stringBuilder.
+                append(character.getName()).append(", "));
+
+        if (stringBuilder.length() > 2)
+            bookDto.setCharacters(stringBuilder.substring(0, stringBuilder.length() - 2));
+
 
         String imageUrl = book.getImagePath();
-        if(!imageUrl.startsWith("Download"))
+        if (imageUrl != null && !imageUrl.startsWith("Download"))
             bookDto.setImageUrl(imageUrl);
 
         return bookDto;
     }
 
-    public List<BookDto> mapToDtos(List<Book> books){
+    public List<BookDto> mapToDtos(List<Book> books) {
         List<BookDto> bookDtos = new ArrayList<>();
         for (Book book : books) {
             bookDtos.add(mapToDto(book));
