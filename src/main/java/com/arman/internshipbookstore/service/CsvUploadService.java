@@ -4,7 +4,6 @@ import com.arman.internshipbookstore.persistence.entity.*;
 import com.arman.internshipbookstore.service.dto.*;
 import com.arman.internshipbookstore.service.exception.*;
 import com.arman.internshipbookstore.enums.*;
-import com.arman.internshipbookstore.service.mapper.AsyncImageDownloaderService;
 import com.arman.internshipbookstore.service.mapper.BookMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
@@ -35,7 +34,6 @@ public class CsvUploadService {
     private final CharacterService characterService;
 
     private final BookMapper bookMapper;
-    private final AsyncImageDownloaderService asyncImageDownloaderService;
 
     private static final List<DateTimeFormatter> DATE_FORMATTERS = List.of(
             DateTimeFormatter.ofPattern("M/d/yy"),
@@ -46,7 +44,7 @@ public class CsvUploadService {
 
 
     public void uploadFile(MultipartFile file) {
-        try (BufferedReader bf = new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8"))){
+        try (BufferedReader bf = new BufferedReader(new InputStreamReader(file.getInputStream(), "UTF-8"))) {
             CSVFormat format = CSVFormat.Builder.create().setHeader().setSkipHeaderRecord(true).get();
             CSVParser csvParser = CSVParser.parse(bf, format);
             Iterable<CSVRecord> csvRecords = csvParser.getRecords();
@@ -55,7 +53,7 @@ public class CsvUploadService {
             List<Award> awardList = awardService.findAll();
             List<Characters> charactersList = characterService.findAll();
             List<Publisher> publisherList = publisherService.findAll();
-            List<Book> books = new ArrayList<>();
+            Set<Book> books = new HashSet<>();
 
             Set<Long> isbnSet = bookService.findAllIsbn();
             Map<String, Author> authorMap = new HashMap<>();
@@ -65,18 +63,18 @@ public class CsvUploadService {
 
 
             for (Author author : authors) {
-                authorMap.put(author.getName(),author);
+                authorMap.put(author.getName(), author);
             }
 
             for (Award award : awardList) {
-                awardMap.put(award.getName(),award);
+                awardMap.put(award.getName(), award);
             }
 
             for (Characters character : charactersList) {
                 charactersMap.put(character.getName(), character);
             }
 
-            for(Publisher publisher : publisherList){
+            for (Publisher publisher : publisherList) {
                 publisherMap.put(publisher.getName(), publisher);
             }
 
@@ -101,8 +99,9 @@ public class CsvUploadService {
                     setBookAwards(book, awardMap, awards_);
                     setBookGenres(book, genres_);
 
-                    if(!coverImg.isBlank())
+                    if (!coverImg.isBlank()) {
                         book.setImagePath("Download " + coverImg);
+                    }
 
                     books.add(book);
 
@@ -114,19 +113,17 @@ public class CsvUploadService {
             }
             bookService.saveAll(books);
 
-            asyncImageDownloaderService.scheduleImageDownloads();
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void setBookPublisher(Book book, Map<String,Publisher> publisherMap, String publisher_name){
+    private void setBookPublisher(Book book, Map<String, Publisher> publisherMap, String publisher_name) {
         Publisher publisher = publisherMap.get(publisher_name);
-        if(publisher==null) {
+        if (publisher == null) {
             publisher = new Publisher();
             publisher.setName(publisher_name);
-            publisherMap.put(publisher_name,publisher);
+            publisherMap.put(publisher_name, publisher);
         }
 
         publisher.addBook(book);
@@ -135,7 +132,7 @@ public class CsvUploadService {
     private void setBookGenres(Book book, String genres_) {
         List<Genre> genres = createOrGetGenresList(genres_);
         Set<Genre> genreSet = book.getGenres();
-        if(genreSet==null) genreSet = new HashSet<>();
+        if (genreSet == null) genreSet = new HashSet<>();
         genreSet.addAll(genres);
 
         book.setGenres(genreSet);
@@ -144,15 +141,15 @@ public class CsvUploadService {
     private void setBookAwards(Book book, Map<String, Award> awardMap, String award_) {
         Map<Award, List<Integer>> awardYearsMap = getAwardsMap(awardMap, award_);
 
-        for(Award award : awardYearsMap.keySet()){
+        for (Award award : awardYearsMap.keySet()) {
             for (Integer year : awardYearsMap.get(award)) {
                 book.addAward(award, year);
             }
         }
     }
 
-    private void setBookCharacters(Book book, Map<String,Characters> charactersMap, String characters_) {
-        List<Characters> charactersList = createOrGetCharacters(charactersMap,removeSquareBrackets(characters_));
+    private void setBookCharacters(Book book, Map<String, Characters> charactersMap, String characters_) {
+        List<Characters> charactersList = createOrGetCharacters(charactersMap, removeSquareBrackets(characters_));
 
         for (Characters character : charactersList) {
             book.addCharacter(character);
@@ -175,16 +172,16 @@ public class CsvUploadService {
         return genreList;
     }
 
-    private String removeSingleQuotes(String str){
+    static String removeSingleQuotes(String str) {
         String result = str;
-        if(result.startsWith("'")) result = result.substring(1);
-        if(result.endsWith("'")) result = result.substring(0,result.length()-1);
+        if (result.startsWith("'")) result = result.substring(1);
+        if (result.endsWith("'")) result = result.substring(0, result.length() - 1);
 
         return result;
     }
 
     private String removeSquareBrackets(String str) {
-        return str.replace("[","").replace("]","");
+        return str.replace("[", "").replace("]", "");
     }
 
     private Map<Award, List<Integer>> getAwardsMap(Map<String, Award> awardMap, String awardString) {
@@ -199,17 +196,17 @@ public class CsvUploadService {
         while (matcher.find()) {
             String awardName = matcher.group(2);
 
-            List<String> awardsList = splitAwards(awardName);
+            List<String> awardsList = AwardService.splitAwards(awardName);
             for (String awardToken : awardsList) {
-                List<Integer> years = extractAwardYears(awardToken);
+                List<Integer> years = AwardService.extractAwardYears(awardToken);
 
-                String cleanAwardName = removeYearInfo(awardToken).trim();
+                String cleanAwardName = AwardService.removeYearInfo(awardToken).trim();
 
                 Award award = awardMap.get(cleanAwardName);
-                if(award==null) {
+                if (award == null) {
                     award = new Award();
                     award.setName(cleanAwardName);
-                    awardMap.put(cleanAwardName,award);
+                    awardMap.put(cleanAwardName, award);
                 }
 
                 if (awardYearMap.containsKey(award)) {
@@ -223,49 +220,6 @@ public class CsvUploadService {
         return awardYearMap;
     }
 
-    private List<String> splitAwards(String awardNames) {
-        List<String> awards = new ArrayList<>();
-        StringBuilder sb = new StringBuilder();
-        int parenthesesLevel = 0;
-        int i = 0;
-        while (i < awardNames.length()) {
-            char c = awardNames.charAt(i);
-            if (c == '(') {
-                parenthesesLevel++;
-            } else if (c == ')') {
-                parenthesesLevel--;
-            }
-
-            if (parenthesesLevel == 0 && i + 5 <= awardNames.length() && awardNames.substring(i, i + 5).equals(" and ")) {
-                awards.add(sb.toString().trim());
-                sb.setLength(0);
-                i += 5;
-                continue;
-            }
-            sb.append(c);
-            i++;
-        }
-        if (sb.length() > 0) {
-            awards.add(sb.toString().trim());
-        }
-        return awards;
-    }
-
-    private List<Integer> extractAwardYears(String input) {
-        List<Integer> years = new ArrayList<>();
-        Pattern yearPattern = Pattern.compile("\\((\\d{4})\\)");
-        Matcher matcher = yearPattern.matcher(input);
-        while (matcher.find()) {
-            years.add(Integer.parseInt(matcher.group(1)));
-        }
-
-        return years;
-    }
-
-    private String removeYearInfo(String input) {
-        return input.replaceAll("\\(\\d{4}\\)", "").trim();
-    }
-
     private List<Characters> createOrGetCharacters(Map<String, Characters> characterMap, String characterNames) {
         List<Characters> characterList = new ArrayList<>();
 
@@ -274,7 +228,7 @@ public class CsvUploadService {
         for (String characterName : characters) {
             String name = removeSingleQuotes(characterName);
             Characters character = characterMap.get(name);
-            if(character==null){
+            if (character == null) {
                 character = new Characters();
                 character.setName(name);
                 characterMap.put(name, character);
@@ -286,69 +240,26 @@ public class CsvUploadService {
     }
 
     private void setBookAuthors(Book book, Map<String, Author> authorMap, String authorName) {
-        List<String> authorNameRoles = splitAuthors(authorName);
+        List<String> authorNameRoles = AuthorService.splitAuthors(authorName);
 
         for (String author_ : authorNameRoles) {
-            String name = extractAuthorName(author_);
+            String name = AuthorService.extractAuthorName(author_);
             Author author = authorMap.get(name);
 
-            if(author == null) {
+            if (author == null) {
                 author = new Author();
                 author.setName(name);
-                authorMap.put(name,author);
+                authorMap.put(name, author);
             }
-            List<String> roles = extractRoles(author_);
-            if(roles.isEmpty()) book.addBookAuthor(author,"Author");
-            else {
+            List<String> roles = AuthorService.extractRoles(author_);
+            if (roles.isEmpty()) {
+                book.addBookAuthor(author, "Author");
+            } else {
                 for (String role : roles) {
                     book.addBookAuthor(author, role);
                 }
             }
         }
-    }
-
-    private List<String> splitAuthors(String authorName) {
-        List<String> authors = new ArrayList<>();
-        StringBuilder sb = new StringBuilder();
-        int parenthesesLevel = 0;
-
-        for (char c : authorName.toCharArray()) {
-            if (c == '(') {
-                parenthesesLevel++;
-            } else if (c == ')') {
-                parenthesesLevel--;
-            }
-
-            if (c == ',' && parenthesesLevel == 0) {
-                authors.add(sb.toString().trim());
-                sb.setLength(0);
-            } else {
-                sb.append(c);
-            }
-        }
-
-        if (sb.length() > 0) {
-            authors.add(sb.toString().trim());
-        }
-        return authors;
-    }
-
-    private List<String> extractRoles(String authorToken) {
-        List<String> roles = new ArrayList<>();
-        Pattern pattern = Pattern.compile("\\(([^)]+)\\)");
-        Matcher matcher = pattern.matcher(authorToken);
-
-        while (matcher.find()) {
-            String roleGroup = matcher.group(1);
-            for (String role : roleGroup.split(",")) {
-                roles.add(role.trim());
-            }
-        }
-        return roles;
-    }
-
-    private String extractAuthorName(String authorToken) {
-        return authorToken.replaceAll("\\([^)]*\\)", "").trim();
     }
 
 
@@ -375,14 +286,13 @@ public class CsvUploadService {
         String firstPublishDate_ = csvRecord.get("firstPublishDate");
 
 
-
         LocalDate publishDate = setupDate(publishDate_);
 
-        if(publishDate==null) throw new IncorrectPublishDateException("Publish date cannot be empty");
+        if (publishDate == null) throw new IncorrectPublishDateException("Publish date cannot be empty");
         LocalDate firstPublishDate = setupDate(firstPublishDate_);
 
-        if(firstPublishDate!=null){
-            if(firstPublishDate.isAfter(publishDate)) {
+        if (firstPublishDate != null) {
+            if (firstPublishDate.isAfter(publishDate)) {
                 assert publishDate != null;
                 publishDate = publishDate.minusYears(100);
             }
@@ -448,7 +358,7 @@ public class CsvUploadService {
         for (DateTimeFormatter formatter : DATE_FORMATTERS) {
             try {
                 if (formatter.toString().equals(DateTimeFormatter.ofPattern("yyyy").toString())) {
-                    Year year = Year.parse(publishDate,formatter);
+                    Year year = Year.parse(publishDate, formatter);
                     return year.atDay(1);
                 } else if (formatter.toString().equals(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH).toString())) {
                     YearMonth yearMonth = YearMonth.parse(publishDate, formatter);
@@ -469,12 +379,12 @@ public class CsvUploadService {
 
 
     private Double validatePrice(String price_) {
-        if(price_.isEmpty()) return null;
+        if (price_.isEmpty()) return null;
         Double price;
         try {
             price = Double.parseDouble(price_);
-            if(price<0) throw new NumberFormatException();
-        } catch (NumberFormatException e){
+            if (price < 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
             throw new IncorrectPriceFormatException("Price should be of positive numeric value");
         }
 
@@ -485,8 +395,8 @@ public class CsvUploadService {
         Integer bbeVotes;
         try {
             bbeVotes = Integer.parseInt(bbeVotes_);
-            if(bbeVotes<0) throw new NumberFormatException();
-        } catch (NumberFormatException e){
+            if (bbeVotes < 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
             throw new IncorrectBbeVotesFormatException("Bbe Votes should be of positive numeric value");
         }
 
@@ -497,20 +407,20 @@ public class CsvUploadService {
         Integer bbeScore;
         try {
             bbeScore = Integer.parseInt(bbeScore_);
-            if(bbeScore<0) throw new NumberFormatException();
-        } catch (NumberFormatException e){
+            if (bbeScore < 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
             throw new IncorrectBbeScoreFormatException("Bbe Score should be of positive numeric value");
         }
 
         return bbeScore;
     }
 
-    private Integer validateLikedPercent(String likedPercent_){
+    private Integer validateLikedPercent(String likedPercent_) {
         Integer likedPercent;
-        try{
+        try {
             likedPercent = Integer.parseInt(likedPercent_);
-            if(likedPercent<0 || likedPercent > 100) throw new NumberFormatException();
-        } catch (NumberFormatException e){
+            if (likedPercent < 0 || likedPercent > 100) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
             throw new IncorrectPercentageFormatException("The percentage should be of numeric value between 0 and 100");
         }
 
@@ -519,10 +429,10 @@ public class CsvUploadService {
 
     private Double validateRating(String rating_) throws IncorrectRatingFormatException {
         Double rating;
-        try{
+        try {
             rating = Double.parseDouble(rating_);
-            if(rating<0 || rating>5) throw new NumberFormatException();
-        } catch (NumberFormatException e){
+            if (rating < 0 || rating > 5) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
             throw new IncorrectRatingFormatException("Rating should be a numeric value and be between 0 and 5");
         }
         return rating;
@@ -530,11 +440,11 @@ public class CsvUploadService {
 
     private Integer validatePages(String pages_) {
         Integer pages;
-        try{
+        try {
             pages = Integer.parseInt(pages_);
-            if(pages<=0) throw new NumberFormatException();
+            if (pages <= 0) throw new NumberFormatException();
 
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             throw new IncorrectPageFormatException("Page count should contain numbers only and be greater than 0");
         }
         return pages;
@@ -543,15 +453,14 @@ public class CsvUploadService {
     private Long validateISBN(String isbn, Set<Long> isbnSet) throws IsbnIncorrectFormatException, IsbnDuplicationException {
         Long isbnLong;
 
-        if(isbn.length()==13 && isbn.replaceAll("\\d","").isEmpty())
+        if (isbn.length() == 13 && isbn.replaceAll("\\d", "").isEmpty())
             isbnLong = Long.valueOf(isbn);
         else throw new IsbnIncorrectFormatException("ISBN should contain numeric values only and be of length 13.");
 
-        if(!isbnSet.contains(isbnLong)) {
+        if (!isbnSet.contains(isbnLong)) {
             isbnSet.add(isbnLong);
             return isbnLong;
-        }
-        else throw new IsbnDuplicationException("Book with the following ISBN already exists: "+isbn);
+        } else throw new IsbnDuplicationException("Book with the following ISBN already exists: " + isbn);
     }
 
 }
