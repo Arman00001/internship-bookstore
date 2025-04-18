@@ -1,11 +1,10 @@
-package com.arman.internshipbookstore.service.mapper;
+package com.arman.internshipbookstore.service;
 
 import com.arman.internshipbookstore.persistence.entity.Book;
-import com.arman.internshipbookstore.service.BookService;
-import com.arman.internshipbookstore.service.ImageDownloadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Paths;
@@ -29,15 +28,24 @@ public class AsyncImageDownloaderService {
 
         downloading = true;
 
+        Set<Book> books = null;
         try {
-            Set<Book> books = bookService.findAllWithoutImageDownloaded();
+            books = bookService.findAllWithoutImageDownloaded();
             for (Book book : books) {
                 imageDownloadService.uploadImage(book,baseDir);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+            bookService.saveAll(books);
             downloading = false;
         }
+    }
+
+    @Scheduled(fixedDelay = 20000)
+    public void resumeDownload(){
+        if(!downloading)
+            scheduleImageDownloads();
     }
 }
