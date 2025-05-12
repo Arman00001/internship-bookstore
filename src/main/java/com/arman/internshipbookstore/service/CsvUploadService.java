@@ -1,7 +1,7 @@
 package com.arman.internshipbookstore.service;
 
 import com.arman.internshipbookstore.persistence.entity.*;
-import com.arman.internshipbookstore.service.dto.*;
+import com.arman.internshipbookstore.service.dto.book.BookDto;
 import com.arman.internshipbookstore.service.exception.*;
 import com.arman.internshipbookstore.enums.*;
 import com.arman.internshipbookstore.service.mapper.BookMapper;
