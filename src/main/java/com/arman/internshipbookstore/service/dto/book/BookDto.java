@@ -1,4 +1,4 @@
-package com.arman.internshipbookstore.service.dto;
+package com.arman.internshipbookstore.service.dto.book;
 
 import com.arman.internshipbookstore.controller.deserializer.StringToGenreSetDeserializer;
 import com.arman.internshipbookstore.enums.Genre;
