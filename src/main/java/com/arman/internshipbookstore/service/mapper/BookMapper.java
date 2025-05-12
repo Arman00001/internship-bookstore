@@ -1,7 +1,7 @@
 package com.arman.internshipbookstore.service.mapper;
 
 import com.arman.internshipbookstore.persistence.entity.Book;
-import com.arman.internshipbookstore.service.dto.BookDto;
+import com.arman.internshipbookstore.service.dto.book.BookDto;
 import com.arman.internshipbookstore.service.exception.IncorrectStarRatingsFormat;
 import org.springframework.stereotype.Component;
 
