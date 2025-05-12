@@ -9,23 +9,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("/publisher")
+@RestController
+@RequestMapping("/api/publishers")
 @RequiredArgsConstructor
 public class PublisherController {
     private final PublisherService publisherService;
 
-    @GetMapping("/get_by_name")
+    @GetMapping("/name")
     public Publisher getPublisherByName(@RequestParam String name){
         return publisherService.getPublisherByName(name);
     }
 
-    @PostMapping("/add")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PublisherDto addPublisher(@RequestBody @Valid PublisherDto publisherDto){
         return publisherService.addPublisher(publisherDto);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void deletePublisher(@RequestParam("id") Long id){
         publisherService.deletePublisher(id);
