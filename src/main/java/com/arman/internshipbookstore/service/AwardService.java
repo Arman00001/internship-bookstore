@@ -3,6 +3,8 @@ package com.arman.internshipbookstore.service;
 import com.arman.internshipbookstore.persistence.entity.Award;
 import com.arman.internshipbookstore.persistence.repository.AwardRepository;
 import com.arman.internshipbookstore.service.dto.award.AwardDto;
+import com.arman.internshipbookstore.service.dto.award.AwardOfBookResponseDto;
+import com.arman.internshipbookstore.service.dto.award.AwardResponseDto;
 import com.arman.internshipbookstore.service.exception.AwardAlreadyExistsException;
 import com.arman.internshipbookstore.service.exception.AwardNotFoundException;
 import com.arman.internshipbookstore.service.mapper.AwardMapper;
@@ -22,11 +24,20 @@ public class AwardService {
     private final AwardRepository awardRepository;
     private final AwardMapper awardMapper;
 
-    public Award getAwardByName(String name){
+
+    public AwardResponseDto getAwardResponseById(Long id) {
+        Award award = awardRepository.getAwardById(id);
+
+        if (award == null) throw new AwardNotFoundException("Award with the following id does not exist: " + id);
+
+        return new AwardResponseDto(award.getId(), award.getName());
+    }
+
+    public Award getAwardByName(String name) {
         return awardRepository.getAwardByName(name);
     }
 
-    public Award save(AwardDto awardDto){
+    public Award save(AwardDto awardDto) {
         Award award = awardMapper.mapDtoToAward(awardDto);
 
         Award award1 = awardRepository.save(award);
@@ -44,14 +55,14 @@ public class AwardService {
 
     public AwardDto addAward(AwardDto awardDto) {
         Award award = awardRepository.getAwardByName(awardDto.getName());
-        if(award==null){
+        if (award == null) {
             award = awardMapper.mapDtoToAward(awardDto);
 
             Award award1 = awardRepository.save(award);
 
             return awardMapper.mapToDto(award1);
         }
-        throw new AwardAlreadyExistsException("Award with the following name already exists: "+awardDto.getName());
+        throw new AwardAlreadyExistsException("Award with the following name already exists: " + awardDto.getName());
     }
 
 
@@ -100,10 +111,10 @@ public class AwardService {
 
     public void delete(Long id) {
         Award award = awardRepository.getAwardById(id);
-        if(award==null)
-            throw new AwardNotFoundException("Award with the following id does not exist: "+id);
+        if (award == null)
+            throw new AwardNotFoundException("Award with the following id does not exist: " + id);
 
-        if(!award.getBookAwards().isEmpty())
+        if (!award.getBookAwards().isEmpty())
             throw new IllegalStateException("Cannot delete award: it still has books associated.");
 
         awardRepository.delete(award);

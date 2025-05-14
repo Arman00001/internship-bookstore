@@ -2,11 +2,8 @@ package com.arman.internshipbookstore.controller;
 
 import com.arman.internshipbookstore.service.BookService;
 import com.arman.internshipbookstore.service.dto.PageResponseDto;
-import com.arman.internshipbookstore.service.dto.book.BookDto;
+import com.arman.internshipbookstore.service.dto.book.*;
 import com.arman.internshipbookstore.service.criteria.BookSearchCriteria;
-import com.arman.internshipbookstore.service.dto.book.BookResponseDto;
-import com.arman.internshipbookstore.service.dto.book.BookSummaryResponseDto;
-import com.arman.internshipbookstore.service.dto.book.BookUpdateDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.web.PagedModel;
@@ -25,10 +22,15 @@ public class BookController {
         return bookService.searchBooks(bookSearchCriteria);
     }
 
+    @GetMapping("/{id}")
+    public BookResponseDto getBookById(@PathVariable("id") Long id){
+        return bookService.getBookById(id);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BookDto addBook(@RequestBody @Valid BookDto bookDto) {
-        return bookService.addBook(bookDto);
+    public BookDto addBook(@RequestBody @Valid BookCreateDto bookCreateDto) {
+        return bookService.addBook(bookCreateDto);
     }
 
     @PutMapping
@@ -42,11 +44,5 @@ public class BookController {
     public void deleteBook(@PathVariable("id") Long id) {
         bookService.deleteBook(id);
     }
-
-    @GetMapping("/{id}")
-    public BookResponseDto getBookById(@PathVariable("id") Long id){
-        return bookService.getBookById(id);
-    }
-
 
 }
