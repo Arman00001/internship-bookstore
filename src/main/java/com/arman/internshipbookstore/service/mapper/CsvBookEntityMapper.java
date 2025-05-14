@@ -3,6 +3,7 @@ package com.arman.internshipbookstore.service.mapper;
 import com.arman.internshipbookstore.enums.Genre;
 import com.arman.internshipbookstore.persistence.entity.*;
 import com.arman.internshipbookstore.service.AuthorService;
+import com.arman.internshipbookstore.service.exception.IncorrectStarRatingsFormat;
 
 import java.util.HashSet;
 import java.util.List;
@@ -74,6 +75,26 @@ public class CsvBookEntityMapper {
 
         for (Characters character : charactersList) {
             book.addCharacter(character);
+        }
+    }
+
+    public static void setBookRatingsByStars(Book book, String ratingsByStars) {
+        String[] stars_ = ratingsByStars.replace("[", "").
+                replace("]", "").split(",");
+        if (stars_.length == 0) {
+            book.addStarRatings(new Integer[0]);
+        } else {
+            Integer[] stars = new Integer[5];
+            try {
+                for (int i = 0; i < 5; i++) {
+                    Integer val = Integer.parseInt(stars_[i].replace("'", "").trim());
+                    if (val < 0) throw new NumberFormatException();
+                    stars[i] = val;
+                }
+            } catch (NumberFormatException e) {
+                throw new IncorrectStarRatingsFormat("Star ratings should be positive integer numbers only!");
+            }
+            book.addStarRatings(stars);
         }
     }
 }
