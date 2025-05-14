@@ -40,7 +40,7 @@ public class Book {
     @Column(name = "rating", nullable = false)
     private Double rating;
 
-    @Column(name = "pages",nullable = false)
+    @Column(name = "pages", nullable = false)
     private Integer pages;
 
     @Column(name = "isbn", nullable = false, unique = true)
@@ -67,7 +67,7 @@ public class Book {
     @Column(name = "liked_percent", nullable = false)
     private Integer likedPercent;
 
-    @Column(columnDefinition = "TEXT",name = "setting")
+    @Column(columnDefinition = "TEXT", name = "setting")
     private String setting;
 
     @Column(name = "bbe_score")
@@ -109,6 +109,13 @@ public class Book {
             orphanRemoval = true)
     private List<BookAward> bookAwards = new ArrayList<>();
 
+    @OneToMany(
+            mappedBy = "book",
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+            orphanRemoval = true
+    )
+    private List<BookReview> bookReviews = new ArrayList<>();
+
     @ElementCollection(fetch = FetchType.LAZY)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "book_genres", joinColumns = @JoinColumn(name = "book_id"))
@@ -128,7 +135,7 @@ public class Book {
     private Publisher publisher;
 
 
-    public void addBookAuthor(Author author, String role){
+    public void addBookAuthor(Author author, String role) {
         BookAuthor bookAuthor = new BookAuthor();
         bookAuthor.setAuthor(author);
         bookAuthor.setBook(this);
@@ -137,7 +144,7 @@ public class Book {
         author.getBooks().add(bookAuthor);
     }
 
-    public void addAward(Award award, Integer year){
+    public void addAward(Award award, Integer year) {
         BookAward bookAward = new BookAward();
         bookAward.setAward(award);
         bookAward.setYear(year);
@@ -147,28 +154,29 @@ public class Book {
     }
 
 
-    public void addCharacter(Characters character){
+    public void addCharacter(Characters character) {
         characters.add(character);
         character.getBooks().add(this);
     }
 
-    public void addStarRatings(Integer[] stars){
-        if(stars.length!=0){
+    public void addStarRatings(Integer[] stars) {
+        if (stars.length != 0) {
             oneStarRatings += stars[0];
             twoStarRatings += stars[1];
             threeStarRatings += stars[2];
             fourStarRatings += stars[3];
             fiveStarRatings += stars[4];
-            numRatings = oneStarRatings+twoStarRatings+threeStarRatings+fourStarRatings+fiveStarRatings;
-            rating = ((oneStarRatings*1+twoStarRatings*2+threeStarRatings*3+fourStarRatings*4+fiveStarRatings*5)/(double)numRatings);
+            numRatings = oneStarRatings + twoStarRatings + threeStarRatings + fourStarRatings + fiveStarRatings;
+            rating = ((oneStarRatings * 1 + twoStarRatings * 2 + threeStarRatings * 3 + fourStarRatings * 4 +
+                    fiveStarRatings * 5) / (double) numRatings);
         }
     }
 
-    public String getRatingsByStars(){
-        return oneStarRatings+", "+
-                twoStarRatings+", "+
-                threeStarRatings+", "+
-                fourStarRatings+", "+
+    public String getRatingsByStars() {
+        return oneStarRatings + ", " +
+                twoStarRatings + ", " +
+                threeStarRatings + ", " +
+                fourStarRatings + ", " +
                 fiveStarRatings;
     }
 }
