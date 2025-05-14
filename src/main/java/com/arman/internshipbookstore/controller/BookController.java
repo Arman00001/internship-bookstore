@@ -4,6 +4,7 @@ import com.arman.internshipbookstore.service.BookService;
 import com.arman.internshipbookstore.service.dto.PageResponseDto;
 import com.arman.internshipbookstore.service.dto.book.BookDto;
 import com.arman.internshipbookstore.service.criteria.BookSearchCriteria;
+import com.arman.internshipbookstore.service.dto.book.BookResponseDto;
 import com.arman.internshipbookstore.service.dto.book.BookSummaryResponseDto;
 import com.arman.internshipbookstore.service.dto.book.BookUpdateDto;
 import jakarta.validation.Valid;
@@ -40,6 +41,11 @@ public class BookController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void deleteBook(@PathVariable("id") Long id) {
         bookService.deleteBook(id);
+    }
+
+    @GetMapping("/{id}")
+    public BookResponseDto getBookById(@PathVariable("id") Long id){
+        return bookService.getBookById(id);
     }
 
 
