@@ -9,8 +9,10 @@ import lombok.Setter;
 @Getter
 @RequiredArgsConstructor
 public class AwardDto {
+
     private Long id;
 
     @NotBlank(message = "Award name should not be empty")
     private String name;
+
 }
