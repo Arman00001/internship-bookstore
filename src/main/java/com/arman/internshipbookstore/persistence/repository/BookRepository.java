@@ -1,59 +1,59 @@
 package com.arman.internshipbookstore.persistence.repository;
 
-import com.arman.internshipbookstore.enums.Genre;
 import com.arman.internshipbookstore.persistence.entity.Book;
-import com.arman.internshipbookstore.persistence.entity.Publisher;
+import com.arman.internshipbookstore.service.criteria.BookSearchCriteria;
+import com.arman.internshipbookstore.service.dto.book.BookResponseDto;
+import com.arman.internshipbookstore.service.dto.book.BookSummaryResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Set;
 
 @Repository
-public interface BookRepository extends JpaRepository<Book,Long> {
+public interface BookRepository extends JpaRepository<Book, Long> {
 
     @Query("""
-    SELECT DISTINCT b FROM Book b
-    INNER JOIN b.publisher p
-    INNER JOIN b.bookAuthors ba
-    INNER JOIN ba.author a
-    INNER JOIN b.genres g
-    INNER JOIN b.bookAwards baw
-    INNER JOIN baw.award aw
-    WHERE (LOWER(b.title) LIKE LOWER(CONCAT('%',:title,'%')) OR :title IS NULL)
-      AND (:isbn IS NULL OR b.isbn = :isbn)
-      AND (LOWER(p.name) = LOWER(:publisher) OR :publisher IS NULL)
-      AND (LOWER(a.name) = LOWER(:authorName) OR :authorName IS NULL)
-      AND(:genres IS NULL OR g IN :genres)
-      AND(LOWER(aw.name) LIKE LOWER(CONCAT('%',:award,'%')) OR :award IS NULL)
-      AND(b.rating = :rating OR :rating IS NULL)
-      AND(b.rating > :ratingAbove OR :ratingAbove IS NULL)
+                SELECT DISTINCT b.id
+                FROM Book b
+                LEFT JOIN b.publisher p
+                LEFT JOIN b.bookAuthors ba
+                LEFT JOIN ba.author a
+                LEFT JOIN b.genres g
+                LEFT JOIN b.bookAwards baw
+                LEFT JOIN baw.award aw
+                WHERE (:#{#criteria.title} IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%',:#{#criteria.title},'%')))
+                AND(:#{#criteria.isbn} IS NULL OR b.isbn = :#{#criteria.isbn})
+                AND(:#{#criteria.publisher} IS NULL OR LOWER(p.name) = LOWER(:#{#criteria.publisher}))
+                AND(:#{#criteria.authorName} IS NULL OR LOWER(a.name) = LOWER(:#{#criteria.authorName}))
+                AND(:#{#criteria.genres} IS NULL OR g IN :#{#criteria.genres})
+                AND(:#{#criteria.award} IS NULL OR LOWER(aw.name) LIKE LOWER(CONCAT('%',:#{#criteria.award},'%')))
+                AND(:#{#criteria.rating} IS NULL OR b.rating = :#{#criteria.rating})
+                AND(:#{#criteria.ratingAbove} IS NULL OR b.rating >:#{#criteria.ratingAbove})
 """)
-    Page<Book> getBooksByCriteria(@Param("title") String title,
-                                  @Param("publisher") String publisher,
-                                  @Param("genres") Set<Genre> genres,
-                                  @Param("isbn") Long isbn,
-                                  @Param("authorName") String authorName,
-                                  @Param("award") String award,
-                                  @Param("rating") Double rating,
-                                  @Param("ratingAbove") Double ratingAbove,
-                                  Pageable pageable);
+    List<Long> findAllCriteriaIds(BookSearchCriteria criteria);
 
-    Book getBookByIsbn(Long isbn);
+    @Query("""
+                SELECT new com.arman.internshipbookstore.service.dto.book.BookSummaryResponseDto(
+                    b.id,
+                    b.title,
+                    b.imagePath
+                ) FROM Book b WHERE b.id IN :ids
+""")
+    Page<BookSummaryResponseDto> findAllById(List<Long> ids, Pageable pageable);
+
+    @Query("""
+            SELECT new com.arman.internshipbookstore.service.dto.book.BookResponseDto(b)
+            FROM Book b WHERE b.id=:book_id
+            """)
+    BookResponseDto getBookResponseById(Long book_id);
 
     Book getBookById(Long id);
 
-    List<Book> getBooksByTitle(String title);
-
-    List<Book> getBooksByGenres(Genre genre);
-
-    List<Book> getBooksByGenres(Set<Genre> genres);
-
-    List<Book> getBookByPublisher(Publisher publisher);
+    Book getBookByIsbn(Long isbn);
 
     @Query("SELECT b.isbn FROM Book b")
     Set<Long> findAllIsbn();
