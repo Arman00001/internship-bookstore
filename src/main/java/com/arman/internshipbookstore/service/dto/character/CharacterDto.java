@@ -1,4 +1,4 @@
-package com.arman.internshipbookstore.service.dto;
+package com.arman.internshipbookstore.service.dto.character;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.arman.internshipbookstore.service.dto;
+package com.arman.internshipbookstore.service.dto.award;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
