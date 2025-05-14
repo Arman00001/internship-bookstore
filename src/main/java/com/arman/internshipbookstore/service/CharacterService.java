@@ -2,7 +2,7 @@ package com.arman.internshipbookstore.service;
 
 import com.arman.internshipbookstore.persistence.entity.Characters;
 import com.arman.internshipbookstore.persistence.repository.CharacterRepository;
-import com.arman.internshipbookstore.service.dto.CharacterDto;
+import com.arman.internshipbookstore.service.dto.character.CharacterDto;
 import com.arman.internshipbookstore.service.exception.CharacterAlreadyExistsException;
 import com.arman.internshipbookstore.service.mapper.CharacterMapper;
 import lombok.RequiredArgsConstructor;

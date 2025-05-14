@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class BookSearchCriteria extends SearchCriteria{
+public class BookSearchCriteria extends SearchCriteria {
 
     private String title;
     private String authorName;
@@ -24,13 +24,13 @@ public class BookSearchCriteria extends SearchCriteria{
     private String sortAscDesc;
 
     @Override
-    public PageRequest buildPageRequest(){
+    public PageRequest buildPageRequest() {
         PageRequest pageRequest = super.buildPageRequest();
         String sortingParam = sort.isBlank() ? "title" : sort;
         Sort.Direction direction = sortAscDesc.isBlank() ? Sort.Direction.ASC : Sort.Direction.fromString(sortAscDesc);
 
         return pageRequest.withSort(
-                Sort.by(direction,sortingParam)
+                Sort.by(direction, sortingParam)
         );
     }
 }

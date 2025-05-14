@@ -2,7 +2,7 @@ package com.arman.internshipbookstore.service;
 
 import com.arman.internshipbookstore.persistence.entity.Award;
 import com.arman.internshipbookstore.persistence.repository.AwardRepository;
-import com.arman.internshipbookstore.service.dto.AwardDto;
+import com.arman.internshipbookstore.service.dto.award.AwardDto;
 import com.arman.internshipbookstore.service.exception.AwardAlreadyExistsException;
 import com.arman.internshipbookstore.service.exception.AwardNotFoundException;
 import com.arman.internshipbookstore.service.mapper.AwardMapper;
@@ -55,7 +55,7 @@ public class AwardService {
     }
 
 
-    static List<String> splitAwards(String awardNames) {
+    public static List<String> splitAwards(String awardNames) {
         List<String> awards = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         int parenthesesLevel = 0;
@@ -83,7 +83,7 @@ public class AwardService {
         return awards;
     }
 
-    static List<Integer> extractAwardYears(String input) {
+    public static List<Integer> extractAwardYears(String input) {
         List<Integer> years = new ArrayList<>();
         Pattern yearPattern = Pattern.compile("\\((\\d{4})\\)");
         Matcher matcher = yearPattern.matcher(input);
@@ -94,7 +94,7 @@ public class AwardService {
         return years;
     }
 
-    static String removeYearInfo(String input) {
+    public static String removeYearInfo(String input) {
         return input.replaceAll("\\(\\d{4}\\)", "").trim();
     }
 

@@ -1,8 +1,10 @@
 package com.arman.internshipbookstore.controller;
 
 import com.arman.internshipbookstore.service.BookService;
+import com.arman.internshipbookstore.service.dto.PageResponseDto;
 import com.arman.internshipbookstore.service.dto.book.BookDto;
 import com.arman.internshipbookstore.service.criteria.BookSearchCriteria;
+import com.arman.internshipbookstore.service.dto.book.BookSummaryResponseDto;
 import com.arman.internshipbookstore.service.dto.book.BookUpdateDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +20,8 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping
-    public PagedModel<BookDto> getBooks(@ModelAttribute BookSearchCriteria bookSearchCriteria,
-                                        @RequestParam("page") Integer page,
-                                        @RequestParam("size") Integer size,
-                                        @RequestParam(required = false, name = "sort") String sort) {
-        return bookService.searchBooks(bookSearchCriteria, page, size, sort);
+    public PageResponseDto<BookSummaryResponseDto> getBooks(@ModelAttribute BookSearchCriteria bookSearchCriteria) {
+        return bookService.searchBooks(bookSearchCriteria);
     }
 
     @PostMapping

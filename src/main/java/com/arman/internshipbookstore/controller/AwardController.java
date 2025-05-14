@@ -2,7 +2,7 @@ package com.arman.internshipbookstore.controller;
 
 import com.arman.internshipbookstore.persistence.entity.Award;
 import com.arman.internshipbookstore.service.AwardService;
-import com.arman.internshipbookstore.service.dto.AwardDto;
+import com.arman.internshipbookstore.service.dto.award.AwardDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

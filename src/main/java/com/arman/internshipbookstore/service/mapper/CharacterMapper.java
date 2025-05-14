@@ -1,7 +1,7 @@
 package com.arman.internshipbookstore.service.mapper;
 
 import com.arman.internshipbookstore.persistence.entity.Characters;
-import com.arman.internshipbookstore.service.dto.CharacterDto;
+import com.arman.internshipbookstore.service.dto.character.CharacterDto;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -50,7 +50,7 @@ public class AuthorService {
     }
 
 
-    static List<String> splitAuthors(String authorName) {
+    public static List<String> splitAuthors(String authorName) {
         List<String> authors = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         int parenthesesLevel = 0;
@@ -77,7 +77,7 @@ public class AuthorService {
     }
 
 
-    static List<String> extractRoles(String authorToken) {
+    public static List<String> extractRoles(String authorToken) {
         List<String> roles = new ArrayList<>();
         Pattern pattern = Pattern.compile("\\(([^)]+)\\)");
         Matcher matcher = pattern.matcher(authorToken);
@@ -91,7 +91,7 @@ public class AuthorService {
         return roles;
     }
 
-    static String extractAuthorName(String authorToken) {
+    public static String extractAuthorName(String authorToken) {
         return authorToken.replaceAll("\\([^)]*\\)", "").trim();
     }
 
