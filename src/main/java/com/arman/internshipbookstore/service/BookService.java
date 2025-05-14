@@ -4,17 +4,12 @@ import com.arman.internshipbookstore.persistence.entity.*;
 import com.arman.internshipbookstore.persistence.repository.BookAuthorRepository;
 import com.arman.internshipbookstore.persistence.repository.BookAwardRepository;
 import com.arman.internshipbookstore.persistence.repository.BookRepository;
-import com.arman.internshipbookstore.service.dto.AuthorResponseDto;
+import com.arman.internshipbookstore.service.dto.author.AuthorOfBookResponseDto;
 import com.arman.internshipbookstore.service.dto.PageResponseDto;
-import com.arman.internshipbookstore.service.dto.award.AwardResponseDto;
-import com.arman.internshipbookstore.service.dto.book.BookDto;
+import com.arman.internshipbookstore.service.dto.award.AwardOfBookResponseDto;
+import com.arman.internshipbookstore.service.dto.book.*;
 import com.arman.internshipbookstore.service.criteria.BookSearchCriteria;
-import com.arman.internshipbookstore.service.dto.book.BookResponseDto;
-import com.arman.internshipbookstore.service.dto.book.BookSummaryResponseDto;
-import com.arman.internshipbookstore.service.dto.book.BookUpdateDto;
 import com.arman.internshipbookstore.service.dto.character.CharacterDto;
-import com.arman.internshipbookstore.service.dto.character.CharacterResponseDto;
-import com.arman.internshipbookstore.service.dto.publisher.PublisherResponseDto;
 import com.arman.internshipbookstore.service.exception.*;
 import com.arman.internshipbookstore.service.mapper.BookMapper;
 import lombok.RequiredArgsConstructor;
@@ -39,32 +34,29 @@ public class BookService {
     private final BookAwardRepository bookAwardRepository;
 
 
-    public BookDto addBook(BookDto bookDto) {
-        validateIsbn(bookDto.getIsbn());
+    public BookDto addBook(BookCreateDto bookCreateDto) {
+        validateIsbn(bookCreateDto.getIsbn());
 
-        Book book = bookMapper.mapDtoToBook(bookDto);
+        Book book = bookMapper.mapCreateDtoToBook(bookCreateDto);
 
-        setBookPublisher(book, bookDto.getPublisherName());
-        setBookAuthors(book, bookDto.getAuthorNames());
-        if(bookDto.getAwards()!=null && !bookDto.getAwards().isBlank())
-            setBookAwards(book, bookDto.getAwards());
-        if(bookDto.getCharacters()!=null && !bookDto.getCharacters().isBlank())
-            setBookCharacters(book, bookDto.getCharacters());
-        book.setGenres(bookDto.getGenres());
-
+        setBookPublisher(book, bookCreateDto.getPublisherId());
+        setBookAuthors(book, bookCreateDto.getAuthorIdRoles());
+        setBookAwards(book, bookCreateDto.getAwards());
+        setBookCharacters(book, bookCreateDto.getCharacters());
+        book.setGenres(bookCreateDto.getGenres());
 
         Book book1 = bookRepository.save(book);
 
         return bookMapper.mapToDto(book1);
     }
 
-    public PageResponseDto<BookSummaryResponseDto> searchBooks(BookSearchCriteria criteria){
+    public PageResponseDto<BookSummaryResponseDto> searchBooks(BookSearchCriteria criteria) {
         List<Long> ids = bookRepository.findAllCriteriaIds(criteria);
         Page<BookSummaryResponseDto> page = bookRepository.findAllById(ids, criteria.buildPageRequest());
 
         page.getContent().forEach(bookSummaryResponseDto -> {
             List<String> authorNames = setBookResponseAuthors(bookSummaryResponseDto.getId()).stream()
-                    .map(AuthorResponseDto::getName).toList();
+                    .map(AuthorOfBookResponseDto::getName).toList();
             bookSummaryResponseDto.setAuthorNames(authorNames);
         });
 
@@ -75,34 +67,34 @@ public class BookService {
     @Transactional
     public BookDto updateBook(BookUpdateDto bookUpdateDto) {
         Book book = bookRepository.findById(bookUpdateDto.getId()).
-                orElseThrow(()->new BookNotFoundException("Book with the following id does not exist: "+ bookUpdateDto.getId()));
+                orElseThrow(() -> new BookNotFoundException("Book with the following id does not exist: " + bookUpdateDto.getId()));
 
         String description = bookUpdateDto.getDescription();
         Integer starRating = bookUpdateDto.getStarRating();
         String award = bookUpdateDto.getAward();
         String characterName = bookUpdateDto.getCharacter();
 
-        if(description!=null && !description.isBlank()){
+        if (description != null && !description.isBlank()) {
             book.setDescription(description);
         }
-        if(starRating!=null){
-            if(starRating>0 && starRating<=5) {
+        if (starRating != null) {
+            if (starRating > 0 && starRating <= 5) {
                 Integer[] stars = new Integer[5];
-                Arrays.fill(stars,0);
+                Arrays.fill(stars, 0);
                 stars[starRating - 1] = 1;
                 book.addStarRatings(stars);
             } else throw new IncorrectStarRatingsFormat("Star rating value should be between 1 and 5");
         }
-        if(award!=null && !award.isBlank()){
-            setBookAwards(book,award);
+        if (award != null && !award.isBlank()) {
+            setBookAwards(book, award);
         }
-        if(characterName!=null && !characterName.isBlank()){
+        if (characterName != null && !characterName.isBlank()) {
             Characters character = characterService.getCharacterByName(characterName);
-            if(character==null){
+            if (character == null) {
                 CharacterDto characterDto = new CharacterDto();
                 characterDto.setName(characterName);
 
-                character =characterService.save(characterDto);
+                character = characterService.save(characterDto);
             }
             book.addCharacter(character);
         }
@@ -116,13 +108,13 @@ public class BookService {
 
         Book book = bookRepository.getBookById(id);
 
-        if(book==null)
-            throw new BookNotFoundException("Book with the following id does not exist: "+id);
+        if (book == null)
+            throw new BookNotFoundException("Book with the following id does not exist: " + id);
 
         Set<Characters> characters = book.getCharacters();
         for (Characters character : characters) {
             Set<Book> books = character.getBooks();
-            if(books.size()>1){
+            if (books.size() > 1) {
                 books.remove(book);
                 continue;
             }
@@ -138,7 +130,7 @@ public class BookService {
 
         book.getBookAuthors().clear();
 
-        for(BookAward bookAward : book.getBookAwards()){
+        for (BookAward bookAward : book.getBookAwards()) {
             bookAward.getAward().getBookAwards().remove(bookAward);
         }
 
@@ -150,51 +142,50 @@ public class BookService {
     }
 
 
-
-    public BookResponseDto getBookById(Long bookId){
+    public BookResponseDto getBookById(Long bookId) {
 
         BookResponseDto bookResponseDto = bookRepository.getBookResponseById(bookId);
 
-        List<AuthorResponseDto> authorResponseDtos = setBookResponseAuthors(bookId);
-        List<AwardResponseDto> awardResponseDtos = setBookResponseAwards(bookId);
+        List<AuthorOfBookResponseDto> authorOfBookResponseDtos = setBookResponseAuthors(bookId);
+        List<AwardOfBookResponseDto> awardOfBookResponseDtos = setBookResponseAwards(bookId);
 
-        bookResponseDto.setAuthors(authorResponseDtos);
-        bookResponseDto.setAwards(awardResponseDtos);
+        bookResponseDto.setAuthors(authorOfBookResponseDtos);
+        bookResponseDto.setAwards(awardOfBookResponseDtos);
 
         return bookResponseDto;
     }
 
 
-    private List<AwardResponseDto> setBookResponseAwards(Long bookId) {
+    private List<AwardOfBookResponseDto> setBookResponseAwards(Long bookId) {
 
-        List<AwardResponseDto> awardResponseDtos = bookAwardRepository.getBookAwardsByBook_Id(bookId).stream()
+        List<AwardOfBookResponseDto> awardOfBookResponseDtos = bookAwardRepository.getBookAwardsByBook_Id(bookId).stream()
                 .map(bookAward -> {
                     Award award = bookAward.getAward();
-                    return new AwardResponseDto(award.getId(), award.getName(), bookAward.getYear());
+                    return new AwardOfBookResponseDto(award.getId(), award.getName(), bookAward.getYear());
                 })
                 .toList();
 
-        return awardResponseDtos;
+        return awardOfBookResponseDtos;
     }
 
-    private List<AuthorResponseDto> setBookResponseAuthors(Long bookId) {
+    private List<AuthorOfBookResponseDto> setBookResponseAuthors(Long bookId) {
 
-        List<AuthorResponseDto> authorResponseDtos = bookAuthorRepository.getBookAuthorsByBook_Id(bookId).stream()
+        List<AuthorOfBookResponseDto> authorOfBookResponseDtos = bookAuthorRepository.getBookAuthorsByBook_Id(bookId).stream()
                 .map(bookAuthor -> {
                     Author author = bookAuthor.getAuthor();
-                    return new AuthorResponseDto(author.getId(), author.getName(), bookAuthor.getRole());
+                    return new AuthorOfBookResponseDto(author.getId(), author.getName(), bookAuthor.getRole());
                 })
                 .toList();
 
-        return authorResponseDtos;
+        return authorOfBookResponseDtos;
     }
 
 
-    public Set<Book> findAllWithoutImageDownloaded(){
+    public Set<Book> findAllWithoutImageDownloaded() {
         return bookRepository.findAllWithoutImageDownloaded();
     }
 
-    public Set<Long> findAllIsbn(){
+    public Set<Long> findAllIsbn() {
         return bookRepository.findAllIsbn();
     }
 
@@ -204,47 +195,46 @@ public class BookService {
 
 
     private void setBookCharacters(Book book, String characters) {
-        List<Characters> charactersList = createOrGetCharacters(characters);
+        if (characters != null && !characters.isBlank()) {
+            List<Characters> charactersList = createOrGetCharacters(characters);
 
-        for (Characters character : charactersList) {
-            book.addCharacter(character);
-        }
-    }
-
-    private void setBookPublisher(Book book, String publisherName) {
-        Publisher publisher = publisherService.getPublisherByName(publisherName);
-        if (publisher == null)
-            throw new PublisherNotFoundException("Publisher with the following name is not found: "+publisherName);
-
-        publisher.addBook(book);
-    }
-
-    private void setBookAuthors(Book book, String authorNames) {
-        List<String> authorNameRoles = AuthorService.splitAuthors(authorNames);
-
-        for (String author_ : authorNameRoles) {
-            String name = AuthorService.extractAuthorName(author_);
-            Author author = authorService.getAuthorByName(name);
-
-            if (author == null)
-                throw new AuthorNotFoundException("Author with the following name is not found: "+name);
-
-            List<String> roles = AuthorService.extractRoles(author_);
-            if (roles.isEmpty()) book.addBookAuthor(author, "Author");
-            else {
-                for (String role : roles) {
-                    book.addBookAuthor(author, role);
-                }
+            for (Characters character : charactersList) {
+                book.addCharacter(character);
             }
         }
     }
 
-    private void setBookAwards(Book book, String awards) {
-        Map<Award, List<Integer>> awardYearsMap = getAwardsMap(awards);
+    private void setBookPublisher(Book book, Long publisherId) {
+        Publisher publisher = publisherService.getPublisherById(publisherId);
+        if (publisher == null)
+            throw new PublisherNotFoundException("Publisher with the following id not found: " + publisherId);
 
-        for(Award award : awardYearsMap.keySet()){
-            for (Integer year : awardYearsMap.get(award)) {
-                book.addAward(award, year);
+        publisher.addBook(book);
+    }
+
+    private void setBookAuthors(Book book, Map<String, List<String>> authorIdRoles) {
+        authorIdRoles.forEach((key, value) -> {
+            Long id = Long.valueOf(key);
+            Author author = authorService.getAuthorById(id);
+            if (author == null)
+                throw new AuthorNotFoundException("Author with the following id not found: " + id);
+
+            if (value.isEmpty()) {
+                book.addBookAuthor(author, "Author");
+            } else {
+                value.forEach(role -> book.addBookAuthor(author, role));
+            }
+        });
+    }
+
+    private void setBookAwards(Book book, String awards) {
+        if (awards != null && !awards.isBlank()) {
+            Map<Award, List<Integer>> awardYearsMap = getAwardsMap(awards);
+
+            for (Award award : awardYearsMap.keySet()) {
+                for (Integer year : awardYearsMap.get(award)) {
+                    book.addAward(award, year);
+                }
             }
         }
     }
@@ -253,7 +243,7 @@ public class BookService {
     private Map<Award, List<Integer>> getAwardsMap(String awardString) {
         Map<Award, List<Integer>> awardYearMap = new HashMap<>();
 
-        awardString = awardString.trim().replace("[","").replace("]","");
+        awardString = awardString.trim().replace("[", "").replace("]", "");
 
         for (String awardName : awardString.split(",")) {
             List<String> awardsList = AwardService.splitAwards(awardName.trim());
@@ -285,7 +275,7 @@ public class BookService {
         for (String characterName : characters) {
             String name = removeSingleQuotes(characterName);
             Characters character = characterService.getCharacterByName(name);
-            if(character==null){
+            if (character == null) {
                 character = new Characters();
                 character.setName(name);
             }
@@ -295,12 +285,12 @@ public class BookService {
         return characterList;
     }
 
-    private void validateIsbn(Long isbn){
-        if(isbn==null || Long.toString(isbn).length()!=13 || isbn<=0)
+    private void validateIsbn(Long isbn) {
+        if (isbn == null || Long.toString(isbn).length() != 13 || isbn <= 0)
             throw new IsbnIncorrectFormatException("ISBN should contain numeric values only and be of length 13.");
 
-        else if(bookRepository.getBookByIsbn(isbn)!=null)
-            throw new IsbnDuplicationException("Book with the following ISBN already exists: "+isbn);
+        else if (bookRepository.getBookByIsbn(isbn) != null)
+            throw new IsbnDuplicationException("Book with the following ISBN already exists: " + isbn);
     }
 
 }
