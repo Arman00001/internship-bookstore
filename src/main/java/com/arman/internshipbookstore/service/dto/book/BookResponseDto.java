@@ -2,8 +2,8 @@ package com.arman.internshipbookstore.service.dto.book;
 
 import com.arman.internshipbookstore.enums.Genre;
 import com.arman.internshipbookstore.persistence.entity.Book;
-import com.arman.internshipbookstore.service.dto.AuthorResponseDto;
-import com.arman.internshipbookstore.service.dto.award.AwardResponseDto;
+import com.arman.internshipbookstore.service.dto.author.AuthorOfBookResponseDto;
+import com.arman.internshipbookstore.service.dto.award.AwardOfBookResponseDto;
 import com.arman.internshipbookstore.service.dto.character.CharacterResponseDto;
 import com.arman.internshipbookstore.service.dto.publisher.PublisherResponseDto;
 import lombok.Getter;
@@ -51,9 +51,9 @@ public class BookResponseDto {
 
     private PublisherResponseDto publisher;
     private List<CharacterResponseDto> characters;
-    private List<AuthorResponseDto> authors;
+    private List<AuthorOfBookResponseDto> authors;
     private List<Genre> genres;
-    private List<AwardResponseDto> awards;
+    private List<AwardOfBookResponseDto> awards;
 
 
     public BookResponseDto(Book book){
