@@ -1,16 +1,19 @@
 package com.arman.internshipbookstore.service.mapper;
 
 import com.arman.internshipbookstore.persistence.entity.Book;
+import com.arman.internshipbookstore.service.dto.book.BookCreateDto;
 import com.arman.internshipbookstore.service.dto.book.BookDto;
-import com.arman.internshipbookstore.service.exception.IncorrectStarRatingsFormat;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.arman.internshipbookstore.service.mapper.CsvBookEntityMapper.setBookRatingsByStars;
+
 @Component
 public class BookMapper {
-    public Book mapDtoToBook(BookDto bookDto) {
+
+    public Book mapDtoToBook(BookDto bookDto){
         Book book = new Book();
 
         book.setTitle(bookDto.getTitle());
@@ -30,26 +33,36 @@ public class BookMapper {
         book.setBbeScore(bookDto.getBbeScore());
         book.setBbeVotes(bookDto.getBbeVotes());
         book.setPrice(bookDto.getPrice());
-
-        String[] stars_ = bookDto.getRatingsByStars().replace("[", "").
-                replace("]", "").split(",");
-        if (stars_.length == 0)
-            book.addStarRatings(new Integer[0]);
-        else {
-            Integer[] stars = new Integer[5];
-            try {
-                for (int i = 0; i < 5; i++) {
-                    Integer val = Integer.parseInt(stars_[i].replace("'", "").trim());
-                    if (val < 0) throw new NumberFormatException();
-                    stars[i] = val;
-                }
-            } catch (NumberFormatException e) {
-                throw new IncorrectStarRatingsFormat("Star ratings should be positive integer numbers only!");
-            }
-            book.addStarRatings(stars);
-        }
+        setBookRatingsByStars(book, bookDto.getRatingsByStars());
 
         book.setImagePath(bookDto.getImageUrl());
+
+        return book;
+    }
+
+    public Book mapCreateDtoToBook(BookCreateDto bookCreateDto) {
+        Book book = new Book();
+
+        book.setTitle(bookCreateDto.getTitle());
+        book.setDescription(bookCreateDto.getDescription());
+        book.setSeries(bookCreateDto.getSeries());
+        book.setRating(bookCreateDto.getRating());
+        book.setPages(bookCreateDto.getPages());
+        book.setIsbn(bookCreateDto.getIsbn());
+        book.setFormat(bookCreateDto.getFormat());
+        book.setPublishDate(bookCreateDto.getPublishDate());
+        book.setFirstPublishDate(bookCreateDto.getFirstPublishDate());
+        book.setLanguage(bookCreateDto.getLanguage());
+        book.setEdition(bookCreateDto.getEdition());
+        book.setNumRatings(bookCreateDto.getNumRatings());
+        book.setLikedPercent(bookCreateDto.getLikedPercent());
+        book.setSetting(bookCreateDto.getSetting());
+        book.setBbeScore(bookCreateDto.getBbeScore());
+        book.setBbeVotes(bookCreateDto.getBbeVotes());
+        book.setPrice(bookCreateDto.getPrice());
+        setBookRatingsByStars(book, bookCreateDto.getRatingsByStars());
+
+        book.setImagePath(bookCreateDto.getImageUrl());
 
         return book;
     }
