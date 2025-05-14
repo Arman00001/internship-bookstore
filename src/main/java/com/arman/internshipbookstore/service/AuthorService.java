@@ -1,8 +1,9 @@
 package com.arman.internshipbookstore.service;
 
-import com.arman.internshipbookstore.service.dto.AuthorDto;
+import com.arman.internshipbookstore.service.dto.author.AuthorCreateDto;
 import com.arman.internshipbookstore.persistence.entity.Author;
 import com.arman.internshipbookstore.persistence.repository.AuthorRepository;
+import com.arman.internshipbookstore.service.dto.author.AuthorResponseDto;
 import com.arman.internshipbookstore.service.exception.AuthorAlreadyExistsException;
 import com.arman.internshipbookstore.service.exception.AuthorNotFoundException;
 import com.arman.internshipbookstore.service.mapper.AuthorMapper;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,30 +23,25 @@ public class AuthorService {
     private final AuthorMapper authorMapper;
 
     public Author getAuthorByName(String name) {
-        Author author = authorRepository.getAuthorByName(name);
 
-        return author;
-    }
-
-    public Set<String> findAllNames() {
-        return authorRepository.findAllNames();
+        return authorRepository.getAuthorByName(name);
     }
 
     public List<Author> findAll() {
         return authorRepository.findAll();
     }
 
-    public AuthorDto addAuthor(AuthorDto authorDto) {
-        Author author = authorRepository.getAuthorByName(authorDto.getName());
+    public AuthorResponseDto addAuthor(AuthorCreateDto authorCreateDto) {
+        Author author = authorRepository.getAuthorByName(authorCreateDto.getName());
         if (author != null) {
-            throw new AuthorAlreadyExistsException("Author with the following name already exists: " + authorDto.getName());
+            throw new AuthorAlreadyExistsException("Author with the following name already exists: " + authorCreateDto.getName());
         }
 
-        author = authorMapper.mapDtoToAuthor(authorDto);
+        author = authorMapper.mapDtoToAuthor(authorCreateDto);
 
         Author author1 = authorRepository.save(author);
 
-        return authorMapper.mapToDto(author1);
+        return new AuthorResponseDto(author1.getId(),author1.getName());
     }
 
 
@@ -70,7 +65,7 @@ public class AuthorService {
             }
         }
 
-        if (sb.length() > 0) {
+        if (!sb.isEmpty()) {
             authors.add(sb.toString().trim());
         }
         return authors;
@@ -95,7 +90,7 @@ public class AuthorService {
         return authorToken.replaceAll("\\([^)]*\\)", "").trim();
     }
 
-    public void delete(Long id) {
+    public void deleteAuthor(Long id) {
         Author author = authorRepository.getAuthorById(id);
         if (author == null) {
             throw new AuthorNotFoundException("Author with the following id does not exist: " + id);
@@ -105,5 +100,19 @@ public class AuthorService {
             throw new IllegalStateException("Cannot delete author: it still has books associated.");
 
         authorRepository.delete(author);
+    }
+
+    public Author getAuthorById(Long id) {
+        return authorRepository.getAuthorById(id);
+    }
+
+    public AuthorResponseDto getAuthorResponseById(Long id) {
+        Author author = authorRepository.getAuthorById(id);
+
+        if (author == null) {
+            throw new AuthorNotFoundException("Author with the following id does not exist: " + id);
+        }
+
+        return new AuthorResponseDto(author.getId(), author.getName());
     }
 }
