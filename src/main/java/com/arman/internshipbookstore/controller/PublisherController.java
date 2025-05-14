@@ -2,11 +2,10 @@ package com.arman.internshipbookstore.controller;
 
 import com.arman.internshipbookstore.persistence.entity.Publisher;
 import com.arman.internshipbookstore.service.PublisherService;
-import com.arman.internshipbookstore.service.dto.PublisherDto;
+import com.arman.internshipbookstore.service.dto.publisher.PublisherDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

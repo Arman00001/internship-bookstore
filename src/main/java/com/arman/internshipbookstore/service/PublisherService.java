@@ -2,7 +2,7 @@ package com.arman.internshipbookstore.service;
 
 import com.arman.internshipbookstore.persistence.entity.Publisher;
 import com.arman.internshipbookstore.persistence.repository.PublisherRepository;
-import com.arman.internshipbookstore.service.dto.PublisherDto;
+import com.arman.internshipbookstore.service.dto.publisher.PublisherDto;
 import com.arman.internshipbookstore.service.exception.PublisherNotFoundException;
 import com.arman.internshipbookstore.service.mapper.PublisherMapper;
 import lombok.RequiredArgsConstructor;
