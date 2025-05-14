@@ -1,35 +1,42 @@
 package com.arman.internshipbookstore.service;
 
-import com.arman.internshipbookstore.enums.Genre;
 import com.arman.internshipbookstore.persistence.entity.*;
+import com.arman.internshipbookstore.persistence.repository.BookAuthorRepository;
+import com.arman.internshipbookstore.persistence.repository.BookAwardRepository;
 import com.arman.internshipbookstore.persistence.repository.BookRepository;
-import com.arman.internshipbookstore.service.dto.BookDto;
-import com.arman.internshipbookstore.service.dto.BookSearchCriteria;
-import com.arman.internshipbookstore.service.dto.BookUpdateDto;
-import com.arman.internshipbookstore.service.dto.CharacterDto;
+import com.arman.internshipbookstore.service.dto.AuthorResponseDto;
+import com.arman.internshipbookstore.service.dto.PageResponseDto;
+import com.arman.internshipbookstore.service.dto.award.AwardResponseDto;
+import com.arman.internshipbookstore.service.dto.book.BookDto;
+import com.arman.internshipbookstore.service.criteria.BookSearchCriteria;
+import com.arman.internshipbookstore.service.dto.book.BookResponseDto;
+import com.arman.internshipbookstore.service.dto.book.BookSummaryResponseDto;
+import com.arman.internshipbookstore.service.dto.book.BookUpdateDto;
+import com.arman.internshipbookstore.service.dto.character.CharacterDto;
+import com.arman.internshipbookstore.service.dto.character.CharacterResponseDto;
+import com.arman.internshipbookstore.service.dto.publisher.PublisherResponseDto;
 import com.arman.internshipbookstore.service.exception.*;
 import com.arman.internshipbookstore.service.mapper.BookMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PagedModel;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+import static com.arman.internshipbookstore.service.util.StringUtils.removeSingleQuotes;
+
 @Service
 @RequiredArgsConstructor
 public class BookService {
-    private final BookRepository bookRepository;
-    private final PublisherService publisherService;
     private final AuthorService authorService;
     private final AwardService awardService;
+    private final BookRepository bookRepository;
+    private final BookAuthorRepository bookAuthorRepository;
     private final BookMapper bookMapper;
     private final CharacterService characterService;
+    private final PublisherService publisherService;
+    private final BookAwardRepository bookAwardRepository;
 
 
     public BookDto addBook(BookDto bookDto) {
@@ -51,34 +58,19 @@ public class BookService {
         return bookMapper.mapToDto(book1);
     }
 
+    public PageResponseDto<BookSummaryResponseDto> searchBooks(BookSearchCriteria criteria){
+        List<Long> ids = bookRepository.findAllCriteriaIds(criteria);
+        Page<BookSummaryResponseDto> page = bookRepository.findAllById(ids, criteria.buildPageRequest());
 
-    public PagedModel<BookDto> searchBooks(BookSearchCriteria bookSearchCriteria, Integer page, Integer size, String sort) {
-        String title = bookSearchCriteria.getTitle();
-        String publisher = bookSearchCriteria.getPublisher();
-        Long isbn = bookSearchCriteria.getIsbn();
-        String authorName = bookSearchCriteria.getAuthorName();
-        String award = bookSearchCriteria.getAward();
-        Double rating = bookSearchCriteria.getRating();
-        Double ratingAbove = bookSearchCriteria.getRatingAbove();
-        if(rating!=null) ratingAbove=null;
+        page.getContent().forEach(bookSummaryResponseDto -> {
+            List<String> authorNames = setBookResponseAuthors(bookSummaryResponseDto.getId()).stream()
+                    .map(AuthorResponseDto::getName).toList();
+            bookSummaryResponseDto.setAuthorNames(authorNames);
+        });
 
-        Set<Genre> genres = bookSearchCriteria.getGenres();
-
-        Pageable pageable;
-        if(sort==null || sort.isBlank())
-            pageable = PageRequest.of(page, size);
-        else pageable = PageRequest.of(page,size, Sort.by(sort));
-
-
-        Page<Book> books = bookRepository.getBooksByCriteria(
-                title,publisher,genres, isbn,authorName,award,rating,ratingAbove,pageable);
-
-        Page<BookDto> bookDtos = books.map(bookMapper::mapToDto);
-
-        PagedModel<BookDto> pagedModel = new PagedModel<>(bookDtos);
-
-        return pagedModel;
+        return PageResponseDto.from(page);
     }
+
 
     @Transactional
     public BookDto updateBook(BookUpdateDto bookUpdateDto) {
@@ -121,6 +113,7 @@ public class BookService {
 
     @Transactional
     public void deleteBook(Long id) {
+
         Book book = bookRepository.getBookById(id);
 
         if(book==null)
@@ -158,10 +151,42 @@ public class BookService {
 
 
 
-    public Book getBookByBookId(Long bookId){
-        Book book = bookRepository.getBookById(bookId);
+    public BookResponseDto getBookById(Long bookId){
 
-        return book;
+        BookResponseDto bookResponseDto = bookRepository.getBookResponseById(bookId);
+
+        List<AuthorResponseDto> authorResponseDtos = setBookResponseAuthors(bookId);
+        List<AwardResponseDto> awardResponseDtos = setBookResponseAwards(bookId);
+
+        bookResponseDto.setAuthors(authorResponseDtos);
+        bookResponseDto.setAwards(awardResponseDtos);
+
+        return bookResponseDto;
+    }
+
+
+    private List<AwardResponseDto> setBookResponseAwards(Long bookId) {
+
+        List<AwardResponseDto> awardResponseDtos = bookAwardRepository.getBookAwardsByBook_Id(bookId).stream()
+                .map(bookAward -> {
+                    Award award = bookAward.getAward();
+                    return new AwardResponseDto(award.getId(), award.getName(), bookAward.getYear());
+                })
+                .toList();
+
+        return awardResponseDtos;
+    }
+
+    private List<AuthorResponseDto> setBookResponseAuthors(Long bookId) {
+
+        List<AuthorResponseDto> authorResponseDtos = bookAuthorRepository.getBookAuthorsByBook_Id(bookId).stream()
+                .map(bookAuthor -> {
+                    Author author = bookAuthor.getAuthor();
+                    return new AuthorResponseDto(author.getId(), author.getName(), bookAuthor.getRole());
+                })
+                .toList();
+
+        return authorResponseDtos;
     }
 
 
@@ -258,7 +283,7 @@ public class BookService {
         String[] characters = characterNames.split(", ");
 
         for (String characterName : characters) {
-            String name = CsvUploadService.removeSingleQuotes(characterName);
+            String name = removeSingleQuotes(characterName);
             Characters character = characterService.getCharacterByName(name);
             if(character==null){
                 character = new Characters();
