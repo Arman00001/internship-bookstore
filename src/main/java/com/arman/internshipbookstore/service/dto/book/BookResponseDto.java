@@ -1,9 +1,11 @@
 package com.arman.internshipbookstore.service.dto.book;
 
 import com.arman.internshipbookstore.enums.Genre;
+import com.arman.internshipbookstore.persistence.entity.Book;
 import com.arman.internshipbookstore.service.dto.AuthorResponseDto;
-import com.arman.internshipbookstore.service.dto.AwardResponseDto;
-import com.arman.internshipbookstore.service.dto.PublisherResponseDto;
+import com.arman.internshipbookstore.service.dto.award.AwardResponseDto;
+import com.arman.internshipbookstore.service.dto.character.CharacterResponseDto;
+import com.arman.internshipbookstore.service.dto.publisher.PublisherResponseDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,11 +26,6 @@ public class BookResponseDto {
     private String language;
     private Long isbn;
 
-    private List<AuthorResponseDto> authors;
-    private List<PublisherResponseDto> publishers;
-    private List<Genre> genres;
-    private List<AwardResponseDto> awards;
-
     private String series;
     private Integer pages;
     private LocalDate publishDate;
@@ -41,7 +38,6 @@ public class BookResponseDto {
     private Integer bbeVotes;
     private Double price;
     private String imageUrl;
-    private String characters;
 
     private Integer oneStarRatings = 0;
 
@@ -53,6 +49,44 @@ public class BookResponseDto {
 
     private Integer fiveStarRatings = 0;
 
+    private PublisherResponseDto publisher;
+    private List<CharacterResponseDto> characters;
+    private List<AuthorResponseDto> authors;
+    private List<Genre> genres;
+    private List<AwardResponseDto> awards;
+
+
+    public BookResponseDto(Book book){
+        this.id = book.getId();
+        this.title = book.getTitle();
+        this.description = book.getDescription();
+        this.rating = book.getRating();
+        this.format = book.getFormat();
+        this.language = book.getLanguage();
+        this.isbn = book.getIsbn();
+        this.series = book.getSeries();
+        this.pages = book.getPages();
+        this.publishDate = book.getPublishDate();
+        this.firstPublishDate = book.getFirstPublishDate();
+        this.edition = book.getEdition();
+        this.numRatings = book.getNumRatings();
+        this.likedPercent = book.getLikedPercent();
+        this.setting = book.getSetting();
+        this.bbeScore = book.getBbeScore();
+        this.bbeVotes = book.getBbeVotes();
+        this.price = book.getPrice();
+        this.oneStarRatings = book.getOneStarRatings();
+        this.twoStarRatings = book.getTwoStarRatings();
+        this.threeStarRatings = book.getThreeStarRatings();
+        this.fourStarRatings = book.getFourStarRatings();
+        this.fiveStarRatings = book.getFiveStarRatings();
+        this.imageUrl = book.getImagePath();
+        this.genres = List.copyOf(book.getGenres());
+        this.characters = CharacterResponseDto.getCharacterResponseList(book.getCharacters());
+        this.publisher = PublisherResponseDto.getPublisherResponse(book.getPublisher());
+    }
+
+
     public BookResponseDto(Long id,
                            String title,
                            String description,
@@ -60,10 +94,6 @@ public class BookResponseDto {
                            String format,
                            String language,
                            Long isbn,
-                           List<AuthorResponseDto> authors,
-                           List<PublisherResponseDto> publishers,
-                           List<Genre> genres,
-                           List<AwardResponseDto> awards,
                            String series,
                            Integer pages,
                            LocalDate publishDate,
@@ -80,8 +110,7 @@ public class BookResponseDto {
                            Integer threeStarRatings,
                            Integer fourStarRatings,
                            Integer fiveStarRatings,
-                           String imageUrl,
-                           String characters) {
+                           String imageUrl){
         this.id = id;
         this.title = title;
         this.description = description;
@@ -89,10 +118,6 @@ public class BookResponseDto {
         this.format = format;
         this.language = language;
         this.isbn = isbn;
-        this.authors = authors;
-        this.publishers = publishers;
-        this.genres = genres;
-        this.awards = awards;
         this.series = series;
         this.pages = pages;
         this.publishDate = publishDate;
@@ -110,6 +135,5 @@ public class BookResponseDto {
         this.fourStarRatings = fourStarRatings;
         this.fiveStarRatings = fiveStarRatings;
         this.imageUrl = imageUrl;
-        this.characters = characters;
     }
 }
