@@ -4,6 +4,7 @@ import com.arman.internshipbookstore.persistence.entity.Book;
 import com.arman.internshipbookstore.persistence.entity.Characters;
 import com.arman.internshipbookstore.persistence.repository.CharacterRepository;
 import com.arman.internshipbookstore.service.dto.character.CharacterDto;
+import com.arman.internshipbookstore.service.dto.character.CharacterResponseDto;
 import com.arman.internshipbookstore.service.exception.CharacterAlreadyExistsException;
 import com.arman.internshipbookstore.service.mapper.CharacterMapper;
 import lombok.RequiredArgsConstructor;
@@ -20,20 +21,6 @@ public class CharacterService {
     private final CharacterRepository characterRepository;
     private final CharacterMapper characterMapper;
 
-    public Characters getCharacterByName(String name){
-        return characterRepository.getCharactersByName(name);
-    }
-
-    public Characters save(CharacterDto characterDto){
-        Characters characters = characterRepository.getCharactersByName(characterDto.getName());
-        if(characters!=null) return characters;
-
-        characters = characterMapper.mapDtoToCharacter(characterDto);
-
-        Characters characters1 = characterRepository.save(characters);
-
-        return characters1;
-    }
 
     public CharacterDto addCharacter(CharacterDto characterDto){
         if(characterRepository.getCharactersByName(characterDto.getName())==null){
