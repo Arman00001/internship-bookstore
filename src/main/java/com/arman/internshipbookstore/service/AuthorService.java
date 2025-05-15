@@ -1,9 +1,11 @@
 package com.arman.internshipbookstore.service;
 
+import com.arman.internshipbookstore.persistence.entity.Book;
 import com.arman.internshipbookstore.service.dto.author.AuthorCreateDto;
 import com.arman.internshipbookstore.persistence.entity.Author;
 import com.arman.internshipbookstore.persistence.repository.AuthorRepository;
 import com.arman.internshipbookstore.service.dto.author.AuthorResponseDto;
+import com.arman.internshipbookstore.service.dto.author.AuthorUpdateDto;
 import com.arman.internshipbookstore.service.exception.AuthorAlreadyExistsException;
 import com.arman.internshipbookstore.service.exception.AuthorNotFoundException;
 import com.arman.internshipbookstore.service.mapper.AuthorMapper;
@@ -22,9 +24,21 @@ public class AuthorService {
     private final AuthorRepository authorRepository;
     private final AuthorMapper authorMapper;
 
-    public Author getAuthorByName(String name) {
+    public AuthorResponseDto getAuthorById(Long id) {
+        Author author = authorRepository.getAuthorById(id);
 
-        return authorRepository.getAuthorByName(name);
+        if (author == null) {
+            throw new AuthorNotFoundException("Author with the following id does not exist: " + id);
+        }
+
+        return new AuthorResponseDto(author.getId(), author.getName());
+    }
+
+
+    public AuthorResponseDto getAuthorByName(String name) {
+        Author author = authorRepository.getAuthorByName(name);
+
+        return new AuthorResponseDto(author.getId(), author.getName());
     }
 
     public List<Author> findAll() {
@@ -39,11 +53,43 @@ public class AuthorService {
 
         author = authorMapper.mapDtoToAuthor(authorCreateDto);
 
-        Author author1 = authorRepository.save(author);
-
-        return new AuthorResponseDto(author1.getId(),author1.getName());
+        return AuthorResponseDto.getAuthorResponse(authorRepository.save(author));
     }
 
+    public AuthorResponseDto updateAuthor(Long id, AuthorUpdateDto authorUpdateDto) {
+        Author author = authorRepository.findById(id).orElseThrow(() ->
+                new AuthorNotFoundException("Author with the following id does not exist: " + id));
+
+        if (authorRepository.existsAuthorByName(authorUpdateDto.getName()))
+            throw new IllegalArgumentException("Author with the following name already exists: " + authorUpdateDto.getName());
+
+        author.setName(authorUpdateDto.getName());
+
+        return AuthorResponseDto.getAuthorResponse(authorRepository.save(author));
+    }
+
+
+    public void deleteAuthor(Long id) {
+        Author author = authorRepository.findById(id).orElseThrow(() ->
+                new AuthorNotFoundException("Author with the following id does not exist: " + id));
+
+        if (!author.getBooks().isEmpty())
+            throw new IllegalStateException("Cannot delete author: it still has books associated.");
+
+        authorRepository.delete(author);
+    }
+
+
+    public void assignAuthorsOfBook(Book book, Long id, List<String> value) {
+        Author author = authorRepository.findById(id).orElseThrow(() ->
+                new AuthorNotFoundException("Author with the following id not found: " + id));
+
+        if (value.isEmpty()) {
+            book.addBookAuthor(author, "Author");
+        } else {
+            value.forEach(role -> book.addBookAuthor(author, role));
+        }
+    }
 
     public static List<String> splitAuthors(String authorName) {
         List<String> authors = new ArrayList<>();
@@ -88,31 +134,5 @@ public class AuthorService {
 
     public static String extractAuthorName(String authorToken) {
         return authorToken.replaceAll("\\([^)]*\\)", "").trim();
-    }
-
-    public void deleteAuthor(Long id) {
-        Author author = authorRepository.getAuthorById(id);
-        if (author == null) {
-            throw new AuthorNotFoundException("Author with the following id does not exist: " + id);
-        }
-
-        if (!author.getBooks().isEmpty())
-            throw new IllegalStateException("Cannot delete author: it still has books associated.");
-
-        authorRepository.delete(author);
-    }
-
-    public Author getAuthorById(Long id) {
-        return authorRepository.getAuthorById(id);
-    }
-
-    public AuthorResponseDto getAuthorResponseById(Long id) {
-        Author author = authorRepository.getAuthorById(id);
-
-        if (author == null) {
-            throw new AuthorNotFoundException("Author with the following id does not exist: " + id);
-        }
-
-        return new AuthorResponseDto(author.getId(), author.getName());
     }
 }
