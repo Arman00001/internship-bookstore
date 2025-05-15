@@ -71,7 +71,6 @@ public class BookService {
 
         String description = bookUpdateDto.getDescription();
         Integer starRating = bookUpdateDto.getStarRating();
-        String award = bookUpdateDto.getAward();
         String characterName = bookUpdateDto.getCharacter();
 
         if (description != null && !description.isBlank()) {
@@ -85,19 +84,12 @@ public class BookService {
                 book.addStarRatings(stars);
             } else throw new IncorrectStarRatingsFormat("Star rating value should be between 1 and 5");
         }
-        if (award != null && !award.isBlank()) {
-            setBookAwards(book, award);
-        }
-        if (characterName != null && !characterName.isBlank()) {
-            Characters character = characterService.getCharacterByName(characterName);
-            if (character == null) {
-                CharacterDto characterDto = new CharacterDto();
-                characterDto.setName(characterName);
+        setBookAwards(book, bookUpdateDto.getAward());
 
-                character = characterService.save(characterDto);
-            }
-            book.addCharacter(character);
+        if (characterName != null && !characterName.isBlank()) {
+            characterService.assignCharactersOfBook(book,characterName);
         }
+
         Book book1 = bookRepository.save(book);
 
         return bookMapper.mapToDto(book1);
@@ -196,94 +188,27 @@ public class BookService {
 
     private void setBookCharacters(Book book, String characters) {
         if (characters != null && !characters.isBlank()) {
-            List<Characters> charactersList = createOrGetCharacters(characters);
-
-            for (Characters character : charactersList) {
-                book.addCharacter(character);
-            }
+            characterService.assignCharactersOfBook(book, characters);
         }
     }
 
     private void setBookPublisher(Book book, Long publisherId) {
-        Publisher publisher = publisherService.getPublisherById(publisherId);
-        if (publisher == null)
-            throw new PublisherNotFoundException("Publisher with the following id not found: " + publisherId);
-
-        publisher.addBook(book);
+        publisherService.assignPublisherToBook(book, publisherId);
     }
 
     private void setBookAuthors(Book book, Map<String, List<String>> authorIdRoles) {
         authorIdRoles.forEach((key, value) -> {
             Long id = Long.valueOf(key);
-            Author author = authorService.getAuthorById(id);
-            if (author == null)
-                throw new AuthorNotFoundException("Author with the following id not found: " + id);
-
-            if (value.isEmpty()) {
-                book.addBookAuthor(author, "Author");
-            } else {
-                value.forEach(role -> book.addBookAuthor(author, role));
-            }
+            authorService.assignAuthorsOfBook(book, id, value);
         });
     }
 
     private void setBookAwards(Book book, String awards) {
         if (awards != null && !awards.isBlank()) {
-            Map<Award, List<Integer>> awardYearsMap = getAwardsMap(awards);
-
-            for (Award award : awardYearsMap.keySet()) {
-                for (Integer year : awardYearsMap.get(award)) {
-                    book.addAward(award, year);
-                }
-            }
+            awardService.assignAwardsOfBook(book, awards);
         }
     }
 
-
-    private Map<Award, List<Integer>> getAwardsMap(String awardString) {
-        Map<Award, List<Integer>> awardYearMap = new HashMap<>();
-
-        awardString = awardString.trim().replace("[", "").replace("]", "");
-
-        for (String awardName : awardString.split(",")) {
-            List<String> awardsList = AwardService.splitAwards(awardName.trim());
-            for (String awardToken : awardsList) {
-                List<Integer> years = AwardService.extractAwardYears(awardToken);
-
-                String cleanAwardName = AwardService.removeYearInfo(awardToken).trim();
-
-                Award award = awardService.getAwardByName(cleanAwardName);
-                if (award == null)
-                    throw new AwardNotFoundException("Award with the following name is not found: " + cleanAwardName);
-
-                if (awardYearMap.containsKey(award)) {
-                    awardYearMap.get(award).addAll(years);
-                } else {
-                    awardYearMap.put(award, new ArrayList<>(years));
-                }
-            }
-        }
-
-        return awardYearMap;
-    }
-
-    private List<Characters> createOrGetCharacters(String characterNames) {
-        List<Characters> characterList = new ArrayList<>();
-
-        String[] characters = characterNames.split(", ");
-
-        for (String characterName : characters) {
-            String name = removeSingleQuotes(characterName);
-            Characters character = characterService.getCharacterByName(name);
-            if (character == null) {
-                character = new Characters();
-                character.setName(name);
-            }
-            characterList.add(character);
-        }
-
-        return characterList;
-    }
 
     private void validateIsbn(Long isbn) {
         if (isbn == null || Long.toString(isbn).length() != 13 || isbn <= 0)
