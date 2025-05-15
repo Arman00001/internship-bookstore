@@ -18,12 +18,7 @@ public class PublisherResponseDto {
         this.name = name;
     }
 
-    public PublisherResponseDto(Publisher publisher) {
-        this.id = publisher.getId();
-        this.name = publisher.getName();
-    }
-
     public static PublisherResponseDto getPublisherResponse(Publisher publisher) {
-        return new PublisherResponseDto(publisher);
+        return new PublisherResponseDto(publisher.getId(), publisher.getName());
     }
 }
