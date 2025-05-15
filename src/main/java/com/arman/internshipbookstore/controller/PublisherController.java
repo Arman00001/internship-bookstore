@@ -20,9 +20,16 @@ public class PublisherController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public PublisherDto addPublisher(@RequestBody @Valid PublisherDto publisherDto){
-        return publisherService.addPublisher(publisherDto);
+    public ResponseEntity<PublisherResponseDto> addPublisher(@RequestBody @Valid PublisherCreateDto publisherCreateDto) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(publisherService.addPublisher(publisherCreateDto));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PublisherResponseDto> updatePublisher(@PathVariable("id") Long id,
+                                                                @RequestBody @Valid PublisherUpdateDto publisherUpdateDto){
+        return ResponseEntity.ok(publisherService.updatePublisher(id,publisherUpdateDto));
     }
 
     @DeleteMapping
