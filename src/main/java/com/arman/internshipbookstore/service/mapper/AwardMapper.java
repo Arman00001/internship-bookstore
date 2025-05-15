@@ -1,6 +1,7 @@
 package com.arman.internshipbookstore.service.mapper;
 
 import com.arman.internshipbookstore.persistence.entity.Award;
+import com.arman.internshipbookstore.service.dto.award.AwardCreateDto;
 import com.arman.internshipbookstore.service.dto.award.AwardDto;
 import org.springframework.stereotype.Component;
 
@@ -19,5 +20,12 @@ public class AwardMapper {
         awardDto.setName(award.getName());
 
         return awardDto;
+    }
+
+    public Award mapCreateDtoToAward(AwardCreateDto awardCreateDto) {
+        Award award = new Award();
+        award.setName(awardCreateDto.getName());
+
+        return award;
     }
 }
