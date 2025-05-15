@@ -1,11 +1,13 @@
 package com.arman.internshipbookstore.controller;
 
-import com.arman.internshipbookstore.persistence.entity.Publisher;
 import com.arman.internshipbookstore.service.PublisherService;
-import com.arman.internshipbookstore.service.dto.publisher.PublisherDto;
+import com.arman.internshipbookstore.service.dto.publisher.PublisherCreateDto;
+import com.arman.internshipbookstore.service.dto.publisher.PublisherResponseDto;
+import com.arman.internshipbookstore.service.dto.publisher.PublisherUpdateDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,8 +17,13 @@ public class PublisherController {
     private final PublisherService publisherService;
 
     @GetMapping("/name")
-    public Publisher getPublisherByName(@RequestParam String name){
-        return publisherService.getPublisherByName(name);
+    public ResponseEntity<PublisherResponseDto> getPublisherByName(@RequestParam String name) {
+        return ResponseEntity.ok(publisherService.getPublisherByName(name));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PublisherResponseDto> getPublisherById(@PathVariable("id") Long id){
+        return ResponseEntity.ok(publisherService.getPublisherById(id));
     }
 
     @PostMapping
@@ -34,7 +41,7 @@ public class PublisherController {
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void deletePublisher(@RequestParam("id") Long id){
+    public void deletePublisher(@RequestParam("id") Long id) {
         publisherService.deletePublisher(id);
     }
 }
