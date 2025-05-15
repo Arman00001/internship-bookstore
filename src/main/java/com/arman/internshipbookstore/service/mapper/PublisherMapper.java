@@ -1,14 +1,15 @@
 package com.arman.internshipbookstore.service.mapper;
 
 import com.arman.internshipbookstore.persistence.entity.Publisher;
+import com.arman.internshipbookstore.service.dto.publisher.PublisherCreateDto;
 import com.arman.internshipbookstore.service.dto.publisher.PublisherDto;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PublisherMapper {
-    public Publisher mapDtoToPublisher(PublisherDto publisherDto){
+    public Publisher mapDtoToPublisher(PublisherCreateDto publisherCreateDto){
         Publisher publisher = new Publisher();
-        publisher.setName(publisherDto.getName());
+        publisher.setName(publisherCreateDto.getName());
 
         return publisher;
     }
