@@ -1,6 +1,7 @@
 package com.arman.internshipbookstore.service;
 
 import com.arman.internshipbookstore.persistence.entity.Award;
+import com.arman.internshipbookstore.persistence.entity.Book;
 import com.arman.internshipbookstore.persistence.repository.AwardRepository;
 import com.arman.internshipbookstore.service.dto.award.AwardCreateDto;
 import com.arman.internshipbookstore.service.dto.award.AwardResponseDto;
@@ -12,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,6 +79,16 @@ public class AwardService {
         awardRepository.delete(award);
     }
 
+    public void assignAwardsOfBook(Book book, String awards) {
+        Map<Award, List<Integer>> awardYearsMap = getAwardsMap(awards);
+
+        for (Award award : awardYearsMap.keySet()) {
+            for (Integer year : awardYearsMap.get(award)) {
+                book.addAward(award, year);
+            }
+        }
+    }
+
 
     public static List<String> splitAwards(String awardNames) {
         List<String> awards = new ArrayList<>();
@@ -118,5 +131,33 @@ public class AwardService {
 
     public static String removeYearInfo(String input) {
         return input.replaceAll("\\(\\d{4}\\)", "").trim();
+    }
+
+
+    private Map<Award, List<Integer>> getAwardsMap(String awardString) {
+        Map<Award, List<Integer>> awardYearMap = new HashMap<>();
+
+        awardString = awardString.trim().replace("[", "").replace("]", "");
+
+        for (String awardName : awardString.split(",")) {
+            List<String> awardsList = AwardService.splitAwards(awardName.trim());
+            for (String awardToken : awardsList) {
+                List<Integer> years = AwardService.extractAwardYears(awardToken);
+
+                String cleanAwardName = AwardService.removeYearInfo(awardToken).trim();
+
+                Award award = awardRepository.getAwardByName(cleanAwardName);
+                if (award == null)
+                    throw new AwardNotFoundException("Award with the following name is not found: " + cleanAwardName);
+
+                if (awardYearMap.containsKey(award)) {
+                    awardYearMap.get(award).addAll(years);
+                } else {
+                    awardYearMap.put(award, new ArrayList<>(years));
+                }
+            }
+        }
+
+        return awardYearMap;
     }
 }
