@@ -2,8 +2,7 @@ package com.arman.internshipbookstore.service;
 
 import com.arman.internshipbookstore.persistence.entity.Award;
 import com.arman.internshipbookstore.persistence.repository.AwardRepository;
-import com.arman.internshipbookstore.service.dto.award.AwardDto;
-import com.arman.internshipbookstore.service.dto.award.AwardOfBookResponseDto;
+import com.arman.internshipbookstore.service.dto.award.AwardCreateDto;
 import com.arman.internshipbookstore.service.dto.award.AwardResponseDto;
 import com.arman.internshipbookstore.service.exception.AwardAlreadyExistsException;
 import com.arman.internshipbookstore.service.exception.AwardNotFoundException;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +22,10 @@ public class AwardService {
     private final AwardRepository awardRepository;
     private final AwardMapper awardMapper;
 
+
+    public List<Award> findAll() {
+        return awardRepository.findAll();
+    }
 
     public AwardResponseDto getAwardResponseById(Long id) {
         Award award = awardRepository.getAwardById(id);
@@ -37,32 +39,27 @@ public class AwardService {
         return awardRepository.getAwardByName(name);
     }
 
-    public Award save(AwardDto awardDto) {
-        Award award = awardMapper.mapDtoToAward(awardDto);
-
-        Award award1 = awardRepository.save(award);
-
-        return award1;
-    }
-
-    public Set<String> findAllAwardNames() {
-        return awardRepository.findAllAwardNames();
-    }
-
-    public List<Award> findAll() {
-        return awardRepository.findAll();
-    }
-
-    public AwardDto addAward(AwardDto awardDto) {
-        Award award = awardRepository.getAwardByName(awardDto.getName());
+    public AwardResponseDto addAward(AwardCreateDto awardCreateDto) {
+        Award award = awardRepository.getAwardByName(awardCreateDto.getName());
         if (award == null) {
-            award = awardMapper.mapDtoToAward(awardDto);
+            award = awardMapper.mapCreateDtoToAward(awardCreateDto);
 
             Award award1 = awardRepository.save(award);
 
-            return awardMapper.mapToDto(award1);
+            return new AwardResponseDto(award1.getId(), award1.getName());
         }
-        throw new AwardAlreadyExistsException("Award with the following name already exists: " + awardDto.getName());
+        throw new AwardAlreadyExistsException("Award with the following name already exists: " + awardCreateDto.getName());
+    }
+
+    public void deleteAward(Long id) {
+        Award award = awardRepository.getAwardById(id);
+        if (award == null)
+            throw new AwardNotFoundException("Award with the following id does not exist: " + id);
+
+        if (!award.getBookAwards().isEmpty())
+            throw new IllegalStateException("Cannot delete award: it still has books associated.");
+
+        awardRepository.delete(award);
     }
 
 
@@ -107,16 +104,5 @@ public class AwardService {
 
     public static String removeYearInfo(String input) {
         return input.replaceAll("\\(\\d{4}\\)", "").trim();
-    }
-
-    public void delete(Long id) {
-        Award award = awardRepository.getAwardById(id);
-        if (award == null)
-            throw new AwardNotFoundException("Award with the following id does not exist: " + id);
-
-        if (!award.getBookAwards().isEmpty())
-            throw new IllegalStateException("Cannot delete award: it still has books associated.");
-
-        awardRepository.delete(award);
     }
 }
