@@ -38,9 +38,10 @@ public class AuthenticationController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<LoginResponse> refreshToken(@RequestBody RefreshTokenDto refreshTokenDto) {
+    public ResponseEntity<LoginResponse> refreshToken(@RequestBody @Valid RefreshTokenDto refreshTokenDto) {
         return authenticationService.refreshToken(refreshTokenDto)
-                .map(ResponseEntity::ok).orElseGet(()->ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+                .map(ResponseEntity::ok).orElseGet(
+                        () -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
 
     }
 }
