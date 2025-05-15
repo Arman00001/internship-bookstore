@@ -3,12 +3,12 @@ package com.arman.internshipbookstore.controller;
 import com.arman.internshipbookstore.persistence.entity.Award;
 import com.arman.internshipbookstore.service.AwardService;
 import com.arman.internshipbookstore.service.dto.award.AwardCreateDto;
-import com.arman.internshipbookstore.service.dto.award.AwardDto;
-import com.arman.internshipbookstore.service.dto.award.AwardOfBookResponseDto;
 import com.arman.internshipbookstore.service.dto.award.AwardResponseDto;
+import com.arman.internshipbookstore.service.dto.award.AwardUpdateDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,19 +19,26 @@ public class AwardController {
     private final AwardService awardService;
 
     @GetMapping("/{id}")
-    public AwardResponseDto getAwardById(@PathVariable("id") Long id){
-        return awardService.getAwardResponseById(id);
+    public ResponseEntity<AwardResponseDto> getAwardById(@PathVariable("id") Long id){
+        return ResponseEntity.ok(awardService.getAwardResponseById(id));
     }
 
     @GetMapping("/name")
-    public Award getAwardByName(@RequestParam String name){
-        return awardService.getAwardByName(name);
+    public ResponseEntity<AwardResponseDto> getAwardByName(@RequestParam String name){
+        return ResponseEntity.ok(awardService.getAwardByName(name));
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public AwardResponseDto addAward(@RequestBody @Valid AwardCreateDto awardCreateDto){
-        return awardService.addAward(awardCreateDto);
+    public ResponseEntity<AwardResponseDto> addAward(@RequestBody @Valid AwardCreateDto awardCreateDto){
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(awardService.addAward(awardCreateDto));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AwardResponseDto> updateAward(@PathVariable("id") Long id,
+                                                        AwardUpdateDto awardUpdateDto){
+        return ResponseEntity.ok(awardService.updateAward(id,awardUpdateDto));
     }
 
     @DeleteMapping
