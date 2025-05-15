@@ -9,7 +9,7 @@ import com.arman.internshipbookstore.persistence.repository.UserCredentialReposi
 import com.arman.internshipbookstore.persistence.repository.UserProfileRepository;
 import com.arman.internshipbookstore.service.dto.user.UserDto;
 import com.arman.internshipbookstore.service.dto.user.UserRegistrationDto;
-import com.arman.internshipbookstore.service.dto.user.UserUpdateDto;
+import com.arman.internshipbookstore.service.dto.user.UserProfileUpdateDto;
 import com.arman.internshipbookstore.service.exception.ResourceAlreadyUsedException;
 import com.arman.internshipbookstore.service.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -61,31 +61,31 @@ public class UserService {
         return UserDto.toDto(profile);
     }
 
-    public List<UserDto> getAllUsers(){
+    public List<UserDto> getAllUsers() {
         return userProfileRepository.findAll().stream().map(UserDto::toDto).toList();
     }
 
-    public UserDto getById(Long id){
+    public UserDto getById(Long id) {
         UserProfile userProfile = userProfileRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         return UserDto.toDto(userProfile);
     }
 
     @Transactional
-    public UserDto updateUser(Long id, UserUpdateDto userUpdateDto){
+    public UserDto updateUser(Long id, UserProfileUpdateDto userProfileUpdateDto) {
         UserProfile userProfile = userProfileRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        userProfile.setFirstName(userUpdateDto.getFirstname());
-        userProfile.setLastName(userUpdateDto.getLastname());
+        userProfile.setFirstName(userProfileUpdateDto.getFirstname());
+        userProfile.setLastName(userProfileUpdateDto.getLastname());
 
         return UserDto.toDto(userProfileRepository.save(userProfile));
     }
 
-    public void deleteUser(Long id){
+    public void deleteUser(Long id) {
         UserCredentials credentials = userCredentialRepository.findByUserProfileId(id)
-                .orElseThrow(()-> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         userCredentialRepository.delete(credentials);
     }
