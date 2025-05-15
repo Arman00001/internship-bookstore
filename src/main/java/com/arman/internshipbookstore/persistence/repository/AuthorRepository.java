@@ -11,4 +11,6 @@ public interface AuthorRepository extends JpaRepository<Author, Long> {
     Author getAuthorByName(String name);
 
     Author getAuthorById(Long id);
+
+    boolean existsAuthorByName(String name);
 }
