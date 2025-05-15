@@ -9,13 +9,13 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+
+import static com.arman.internshipbookstore.service.validation.ImageValidation.isImageUrlValid;
 
 @Service
 @RequiredArgsConstructor
@@ -36,24 +36,13 @@ public class ImageDownloadService {
         throw new InvalidImageUrlException("The given image URL is broken: %s".formatted(imageUrl));
     }
 
-    private void download(String imageUrl, String savePath) throws MalformedURLException, IOException {
+    private void download(String imageUrl, String savePath) throws IOException {
         URL url = new URL(imageUrl);
         try (InputStream in = url.openStream()) {
             Files.copy(in, Paths.get(savePath), StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
-    private boolean isImageUrlValid(String imageUrl) {
-        try {
-            HttpURLConnection connection = (HttpURLConnection) new URL(imageUrl).openConnection();
-            connection.setRequestMethod("HEAD");
-            connection.setConnectTimeout(3000);
-            connection.connect();
-            return connection.getResponseCode() == 200;
-        } catch (IOException e) {
-            return false;
-        }
-    }
 
     private String getSavePathForBook(Book book, String baseDir) {
         String firstLetter = book.getTitle().substring(0, 1).toUpperCase();
