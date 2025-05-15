@@ -1,12 +1,13 @@
 package com.arman.internshipbookstore.controller;
 
-import com.arman.internshipbookstore.persistence.entity.Author;
 import com.arman.internshipbookstore.service.AuthorService;
 import com.arman.internshipbookstore.service.dto.author.AuthorCreateDto;
 import com.arman.internshipbookstore.service.dto.author.AuthorResponseDto;
+import com.arman.internshipbookstore.service.dto.author.AuthorUpdateDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,23 +18,31 @@ public class AuthorController {
     private final AuthorService authorService;
 
     @GetMapping("/{id}")
-    public AuthorResponseDto getAuthor(@PathVariable("id") Long id){
-        return authorService.getAuthorResponseById(id);
+    public ResponseEntity<AuthorResponseDto> getAuthor(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(authorService.getAuthorById(id));
     }
 
     @GetMapping("/name")
-    public Author getAuthorByName(@RequestParam String name){
-        return authorService.getAuthorByName(name);
+    public ResponseEntity<AuthorResponseDto> getAuthorByName(@RequestParam String name) {
+        return ResponseEntity.ok(authorService.getAuthorByName(name));
     }
 
     @PostMapping
-    public AuthorResponseDto addAuthor(@RequestBody @Valid AuthorCreateDto authorCreateDto){
-        return authorService.addAuthor(authorCreateDto);
+    public ResponseEntity<AuthorResponseDto> addAuthor(@RequestBody @Valid AuthorCreateDto authorCreateDto) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(authorService.addAuthor(authorCreateDto));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AuthorResponseDto> updateAuthor(@PathVariable("id") Long id,
+                                                          AuthorUpdateDto authorUpdateDto){
+        return ResponseEntity.ok(authorService.updateAuthor(id,authorUpdateDto));
     }
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void deleteAuthor(@RequestParam("id") Long id){
+    public void deleteAuthor(@RequestParam("id") Long id) {
         authorService.deleteAuthor(id);
     }
 
