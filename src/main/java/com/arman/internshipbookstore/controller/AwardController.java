@@ -2,6 +2,7 @@ package com.arman.internshipbookstore.controller;
 
 import com.arman.internshipbookstore.persistence.entity.Award;
 import com.arman.internshipbookstore.service.AwardService;
+import com.arman.internshipbookstore.service.dto.award.AwardCreateDto;
 import com.arman.internshipbookstore.service.dto.award.AwardDto;
 import com.arman.internshipbookstore.service.dto.award.AwardOfBookResponseDto;
 import com.arman.internshipbookstore.service.dto.award.AwardResponseDto;
@@ -29,13 +30,13 @@ public class AwardController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AwardDto addAward(@RequestBody @Valid AwardDto awardDto){
-        return awardService.addAward(awardDto);
+    public AwardResponseDto addAward(@RequestBody @Valid AwardCreateDto awardCreateDto){
+        return awardService.addAward(awardCreateDto);
     }
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void deleteAward(@RequestParam("id") Long id){
-        awardService.delete(id);
+        awardService.deleteAward(id);
     }
 }
