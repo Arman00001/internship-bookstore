@@ -18,14 +18,16 @@ public class BookReviewResponseDto {
     private String review;
     private Integer rating;
     private LocalDateTime postedOn;
+    private LocalDateTime editedOn;
 
-    public BookReviewResponseDto(Long id, Long userId, Long bookId, String review, Integer rating, LocalDateTime postedOn) {
+    public BookReviewResponseDto(Long id, Long userId, Long bookId, String review, Integer rating, LocalDateTime postedOn, LocalDateTime editedOn) {
         this.id = id;
         this.userId = userId;
         this.bookId = bookId;
         this.review = review;
         this.rating = rating;
         this.postedOn = postedOn;
+        this.editedOn = editedOn;
     }
 
     public static BookReviewResponseDto getBookReviewResponse(BookReview bookReview){
@@ -34,6 +36,7 @@ public class BookReviewResponseDto {
                 bookReview.getBook().getId(),
                 bookReview.getReview(),
                 bookReview.getRating(),
-                bookReview.getPostedOn());
+                bookReview.getPostedOn(),
+                bookReview.getEditedOn());
     }
 }
