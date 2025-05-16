@@ -7,17 +7,18 @@ import com.arman.internshipbookstore.persistence.entity.UserProfile;
 import com.arman.internshipbookstore.persistence.repository.RoleRepository;
 import com.arman.internshipbookstore.persistence.repository.UserCredentialRepository;
 import com.arman.internshipbookstore.persistence.repository.UserProfileRepository;
-import com.arman.internshipbookstore.service.dto.user.UserDto;
-import com.arman.internshipbookstore.service.dto.user.UserRegistrationDto;
-import com.arman.internshipbookstore.service.dto.user.UserProfileUpdateDto;
+import com.arman.internshipbookstore.security.dto.LoginRequestDto;
+import com.arman.internshipbookstore.service.dto.user.*;
 import com.arman.internshipbookstore.service.exception.ResourceAlreadyUsedException;
 import com.arman.internshipbookstore.service.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -46,19 +47,18 @@ public class UserService {
         userProfile.setEnabled(true);
         userProfile.setRole(role);
 
-        UserProfile profile = userProfileRepository.save(userProfile);
-
-
         UserCredentials userCredentials = new UserCredentials();
 
-        userCredentials.setUserProfile(profile);
+        userCredentials.setUserProfile(userProfile);
         userCredentials.setUsername(userRegistrationDto.getEmail());
         userCredentials.setPassword(
                 passwordEncoder.encode(userRegistrationDto.getPassword())
         );
-        userCredentialRepository.save(userCredentials);
 
-        return UserDto.toDto(profile);
+        userProfile.setCredentials(userCredentials);
+
+
+        return UserDto.toDto(userProfileRepository.save(userProfile));
     }
 
     public List<UserDto> getAllUsers() {
@@ -73,7 +73,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto updateUser(Long id, UserProfileUpdateDto userProfileUpdateDto) {
+    public UserDto updateUserProfile(Long id, UserProfileUpdateDto userProfileUpdateDto) {
         UserProfile userProfile = userProfileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -88,5 +88,66 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         userCredentialRepository.delete(credentials);
+    }
+
+    @Transactional
+    public Optional<UserDto> updateUserRole(Long id, UserRoleUpdateDto userRoleUpdateDto) {
+        UserProfile user = userProfileRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        Role role = roleRepository.findByName(userRoleUpdateDto.getRoleName())
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+
+        user.setRole(role);
+
+        return Optional.of(UserDto.toDto(userProfileRepository.save(user)));
+    }
+
+    public LoginRequestDto updateUserPassword(Long id, UserPasswordUpdateDto userPasswordUpdateDto, Authentication auth) {
+        UserProfile userProfile = userProfileRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        if (checkUserAuthentication(userProfile, auth, userPasswordUpdateDto.getCurrentPassword())) {
+            UserCredentials userCredentials = userProfile.getCredentials();
+
+            userCredentials.setPassword(passwordEncoder.encode(userPasswordUpdateDto.getPassword()));
+
+            userCredentialRepository.save(userCredentials);
+
+            LoginRequestDto loginRequestDto = new LoginRequestDto();
+            loginRequestDto.setUsername(auth.getName());
+            loginRequestDto.setPassword(userPasswordUpdateDto.getPassword());
+
+            return loginRequestDto;
+        }
+        throw new IllegalStateException("User not authenticated to perform such action");
+    }
+
+    @Transactional
+    public LoginRequestDto updateUserEmail(Long id, UserEmailUpdateDto userEmailUpdateDto, Authentication auth) {
+        UserProfile userProfile = userProfileRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+        if (checkUserAuthentication(userProfile, auth, userEmailUpdateDto.getCurrentPassword())) {
+
+            userProfile.getCredentials().setUsername(userEmailUpdateDto.getEmail());
+            userProfile.setEmail(userEmailUpdateDto.getEmail());
+
+            userProfileRepository.save(userProfile);
+
+            LoginRequestDto loginRequestDto = new LoginRequestDto();
+            loginRequestDto.setUsername(userEmailUpdateDto.getEmail());
+            loginRequestDto.setPassword(userEmailUpdateDto.getCurrentPassword());
+
+            return loginRequestDto;
+        }
+        throw new IllegalStateException("User not authenticated to perform such action");
+    }
+
+    private boolean checkUserAuthentication(UserProfile userProfile, Authentication authentication, String password) {
+        return userProfile.getEmail().equals(authentication.getName())
+                && passwordEncoder.matches(password,userProfile.getCredentials().getPassword());
     }
 }
