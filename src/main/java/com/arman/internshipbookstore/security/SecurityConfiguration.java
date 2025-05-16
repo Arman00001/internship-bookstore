@@ -69,17 +69,23 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.GET, "/api/books/**", "/api/authors/**",
                                         "/api/publishers/**", "/api/awards/**").permitAll()
 
-                                .requestMatchers(HttpMethod.POST, "/api/reviews/**").hasRole("USER")
+                                .requestMatchers(HttpMethod.POST, "/api/reviews/**")
+                                .hasAnyRole("USER","USER_PRIME","MODERATOR")
 
                                 .requestMatchers(HttpMethod.POST, "/api/books/**", "/api/authors/**",
-                                        "/api/publishers/**", "/api/awards/**", "/api/csv/**").hasAnyRole("MODERATOR", "ADMIN")
+                                        "/api/publishers/**", "/api/awards/**",
+                                        "/api/csv/**").hasAnyRole("MODERATOR", "ADMIN")
 
                                 .requestMatchers(HttpMethod.PUT, "/api/books/**", "/api/authors/**",
-                                        "/api/publishers/**", "/api/awards/**").hasAnyRole("MODERATOR", "ADMIN")
+                                        "/api/publishers/**", "/api/awards/**",
+                                        "/api/users/{id}/role").hasAnyRole("MODERATOR", "ADMIN")
 
                                 .requestMatchers(HttpMethod.DELETE, "/api/books/**", "/api/authors/**",
                                         "/api/publishers/**", "/api/awards/**",
                                         "/api/reviews/**").hasAnyRole("MODERATOR", "ADMIN")
+
+                                .requestMatchers(HttpMethod.PUT, "/api/users/{id}/**")
+                                .hasAnyRole("USER","USER_PRIME","MODERATOR","ADMIN")
 
                                 .anyRequest()
                                 .authenticated()
