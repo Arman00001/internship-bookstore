@@ -1,8 +1,13 @@
 package com.arman.internshipbookstore.service.mapper;
 
+import com.arman.internshipbookstore.persistence.entity.Author;
+import com.arman.internshipbookstore.persistence.entity.Award;
 import com.arman.internshipbookstore.persistence.entity.Book;
+import com.arman.internshipbookstore.service.dto.author.AuthorOfBookResponseDto;
+import com.arman.internshipbookstore.service.dto.award.AwardOfBookResponseDto;
 import com.arman.internshipbookstore.service.dto.book.BookCreateDto;
 import com.arman.internshipbookstore.service.dto.book.BookDto;
+import com.arman.internshipbookstore.service.dto.book.BookResponseDto;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -67,6 +72,23 @@ public class BookMapper {
         return book;
     }
 
+    public BookResponseDto mapToResponseDto(Book book) {
+        BookResponseDto bookResponseDto = new BookResponseDto(book);
+        bookResponseDto.setAuthors(book.getBookAuthors().stream()
+                .map(bookAuthor -> {
+                    Author author = bookAuthor.getAuthor();
+                    return new AuthorOfBookResponseDto(author.getId(), author.getName(), bookAuthor.getRole());
+                })
+                .toList());
+
+        bookResponseDto.setAwards(book.getBookAwards().stream().map(bookAward -> {
+                    Award award = bookAward.getAward();
+                    return new AwardOfBookResponseDto(award.getId(), award.getName(), bookAward.getYear());
+                })
+                .toList());
+
+        return bookResponseDto;
+    }
 
     public BookDto mapToDto(Book book) {
         BookDto bookDto = new BookDto();
