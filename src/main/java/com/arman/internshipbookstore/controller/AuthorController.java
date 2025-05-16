@@ -1,6 +1,8 @@
 package com.arman.internshipbookstore.controller;
 
 import com.arman.internshipbookstore.service.AuthorService;
+import com.arman.internshipbookstore.service.criteria.AuthorSearchCriteria;
+import com.arman.internshipbookstore.service.dto.PageResponseDto;
 import com.arman.internshipbookstore.service.dto.author.AuthorCreateDto;
 import com.arman.internshipbookstore.service.dto.author.AuthorResponseDto;
 import com.arman.internshipbookstore.service.dto.author.AuthorUpdateDto;
@@ -23,8 +25,8 @@ public class AuthorController {
     }
 
     @GetMapping("/name")
-    public ResponseEntity<AuthorResponseDto> getAuthorByName(@RequestParam String name) {
-        return ResponseEntity.ok(authorService.getAuthorByName(name));
+    public PageResponseDto<AuthorResponseDto> getAuthorByName(@ModelAttribute @Valid AuthorSearchCriteria criteria) {
+        return authorService.getAuthorByName(criteria);
     }
 
     @PostMapping

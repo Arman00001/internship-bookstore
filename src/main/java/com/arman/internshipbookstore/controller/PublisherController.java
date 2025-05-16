@@ -1,6 +1,8 @@
 package com.arman.internshipbookstore.controller;
 
 import com.arman.internshipbookstore.service.PublisherService;
+import com.arman.internshipbookstore.service.criteria.PublisherSearchCriteria;
+import com.arman.internshipbookstore.service.dto.PageResponseDto;
 import com.arman.internshipbookstore.service.dto.publisher.PublisherCreateDto;
 import com.arman.internshipbookstore.service.dto.publisher.PublisherResponseDto;
 import com.arman.internshipbookstore.service.dto.publisher.PublisherUpdateDto;
@@ -17,8 +19,8 @@ public class PublisherController {
     private final PublisherService publisherService;
 
     @GetMapping("/name")
-    public ResponseEntity<PublisherResponseDto> getPublisherByName(@RequestParam String name) {
-        return ResponseEntity.ok(publisherService.getPublisherByName(name));
+    public PageResponseDto<PublisherResponseDto> getPublisherByName(@ModelAttribute @Valid PublisherSearchCriteria criteria) {
+        return publisherService.getPublisherByName(criteria);
     }
 
     @GetMapping("/{id}")
