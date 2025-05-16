@@ -1,9 +1,13 @@
 package com.arman.internshipbookstore.controller;
 
+import com.arman.internshipbookstore.security.dto.LoginRequestDto;
+import com.arman.internshipbookstore.security.dto.LoginResponse;
+import com.arman.internshipbookstore.service.AuthenticationService;
 import com.arman.internshipbookstore.service.UserService;
 import com.arman.internshipbookstore.service.dto.user.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -17,6 +21,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final AuthenticationService authenticationService;
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
@@ -30,32 +35,35 @@ public class UserController {
     }
 
     @PutMapping("/{id}/profile")
-    public ResponseEntity<UserDto> updateUserProfile(@PathVariable Long id, @RequestBody @Valid UserProfileUpdateDto userProfileUpdateDto){
-        return ResponseEntity.ok(userService.updateUser(id, userProfileUpdateDto));
+    public ResponseEntity<UserDto> updateUserProfile(@PathVariable Long id,
+                                                     @RequestBody @Valid UserProfileUpdateDto userProfileUpdateDto){
+        return ResponseEntity.ok(userService.updateUserProfile(id, userProfileUpdateDto));
     }
 
     @PutMapping("/{id}/email")
-    public ResponseEntity<Void> updateUserEmail(@PathVariable("id") Long id,
-                                                UserEmailUpdateDto userEmailUpdateDto,
-                                                Authentication auth){
-        userService.updateUserEmail(id,userEmailUpdateDto,auth);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<LoginResponse> updateUserEmail(@PathVariable("id") Long id,
+                                                         @RequestBody @Valid UserEmailUpdateDto userEmailUpdateDto,
+                                                         Authentication auth){
+
+        LoginRequestDto loginRequestDto = userService.updateUserEmail(id,userEmailUpdateDto,auth);
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(authenticationService.authenticate(loginRequestDto));
     }
 
     @PutMapping("/{id}/password")
-    public ResponseEntity<Void> updateUserPassword(@PathVariable("id") Long id,
-                                                   UserPasswordUpdateDto userPasswordUpdateDto,
+    public ResponseEntity<LoginResponse> updateUserPassword(@PathVariable("id") Long id,
+                                                   @RequestBody @Valid UserPasswordUpdateDto userPasswordUpdateDto,
                                                    Authentication auth){
-        userService.updateUserPassword(id,userPasswordUpdateDto,auth);
-        return ResponseEntity.noContent().build();
+        LoginRequestDto loginRequestDto = userService.updateUserPassword(id,userPasswordUpdateDto,auth);
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(authenticationService.authenticate(loginRequestDto));
     }
 
     @PutMapping("/{id}/role")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-    public ResponseEntity<Void> updateUserRole(@PathVariable("id") Long id,
-                                               UserRoleUpdateDto userRoleUpdateDto){
-        userService.updateUserRole(id,userRoleUpdateDto);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<UserDto> updateUserRole(@PathVariable("id") Long id,
+                                               @RequestBody @Valid UserRoleUpdateDto userRoleUpdateDto){
+        return userService.updateUserRole(id,userRoleUpdateDto).map(ResponseEntity::ok)
+                .orElseGet(()->ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
     }
 
     @DeleteMapping("/{id}")
