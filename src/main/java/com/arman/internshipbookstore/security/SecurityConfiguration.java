@@ -75,6 +75,8 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.POST, "/api/books/**", "/api/authors/**",
                                         "/api/publishers/**", "/api/awards/**",
                                         "/api/csv/**").hasAnyRole("MODERATOR", "ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/api/orders/**")
+                                .hasAnyRole("USER","USER_PRIME","MODERATOR")
 
                                 .requestMatchers(HttpMethod.PUT, "/api/books/**", "/api/authors/**",
                                         "/api/publishers/**", "/api/awards/**",
