@@ -4,6 +4,7 @@ import com.arman.internshipbookstore.controller.deserializer.StringToGenreSetDes
 import com.arman.internshipbookstore.enums.Genre;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,14 +23,17 @@ public class BookCreateDto {
     @NotBlank(message = "Book format should not be empty")
     private String format;
 
-    @NotBlank(message = "Book publisher name should not be empty")
+    @NotNull(message = "Book publisher name should not be empty")
     private Long publisherId;
 
     @NotBlank(message = "Book language should not be empty")
     private String language;
 
-    @NotBlank(message = "Book author names should not be empty")
+    @NotNull(message = "Book author names should not be empty")
     private Map<String, List<String>> authorIdRoles;
+
+    @NotNull(message = "ISBN must be specified")
+    private Long isbn;
 
     @JsonDeserialize(using = StringToGenreSetDeserializer.class)
     private Set<Genre> genres;
@@ -38,7 +42,6 @@ public class BookCreateDto {
     private String series;
     private Double rating;
     private Integer pages;
-    private Long isbn;
     private LocalDate publishDate;
     private LocalDate firstPublishDate;
     private String edition;
