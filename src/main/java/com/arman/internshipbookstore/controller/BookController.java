@@ -29,7 +29,6 @@ public class BookController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<BookResponseDto> addBook(@RequestBody @Valid BookCreateDto bookCreateDto) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)

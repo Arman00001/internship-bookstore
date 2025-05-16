@@ -42,11 +42,10 @@ public class AuthorController {
         return ResponseEntity.ok(authorService.updateAuthor(id,authorUpdateDto));
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void deleteAuthor(@RequestParam("id") Long id) {
+    public void deleteAuthor(@PathVariable("id") Long id) {
         authorService.deleteAuthor(id);
     }
-
 
 }
