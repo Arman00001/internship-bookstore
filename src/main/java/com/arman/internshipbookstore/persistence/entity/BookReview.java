@@ -3,8 +3,9 @@ package com.arman.internshipbookstore.persistence.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -29,10 +30,11 @@ public class BookReview {
     @Column(name = "rating", nullable = false)
     private Integer rating;
 
+    @CreationTimestamp
     @Column(name = "posted")
-    private LocalDate postedOn;
+    private LocalDateTime postedOn;
 
     @Column(name = "edited")
-    private LocalDate editedOn;
+    private LocalDateTime editedOn;
 
 }
