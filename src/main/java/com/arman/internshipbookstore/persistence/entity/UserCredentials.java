@@ -19,7 +19,7 @@ public class UserCredentials {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne
     @JoinColumn(name = "user_profile_id")
     private UserProfile userProfile;
 }
