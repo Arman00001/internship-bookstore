@@ -14,6 +14,7 @@ public class UserDto {
     private String email;
     private Long createdAt;
     private Long updatedAt;
+    private String role;
 
     public static UserDto toDto(UserProfile userProfile){
         UserDto userDto = new UserDto();
@@ -24,6 +25,7 @@ public class UserDto {
         userDto.setEmail(userProfile.getEmail());
         userDto.setCreatedAt(userProfile.getCreatedAt().getEpochSecond());
         userDto.setUpdatedAt(userProfile.getUpdatedAt().getEpochSecond());
+        userDto.setRole(userProfile.getRole().getName().toString());
 
         return userDto;
     }
