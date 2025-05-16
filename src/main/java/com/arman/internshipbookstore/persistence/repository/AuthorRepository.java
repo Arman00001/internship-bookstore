@@ -8,8 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 
 @Repository
 public interface AuthorRepository extends JpaRepository<Author, Long> {
@@ -22,7 +20,7 @@ public interface AuthorRepository extends JpaRepository<Author, Long> {
             FROM Author a
             WHERE a.name LIKE CONCAT('%',:name,'%')
 """)
-    Page<AuthorResponseDto> getAuthorByName(String name, Pageable pageable);
+    Page<AuthorResponseDto> findAuthorsByName(String name, Pageable pageable);
 
     Author getAuthorById(Long id);
 

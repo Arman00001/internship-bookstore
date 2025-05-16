@@ -20,7 +20,7 @@ public interface PublisherRepository extends JpaRepository<Publisher, Long> {
             FROM Publisher p
             WHERE p.name LIKE CONCAT('%',:name,'%')
 """)
-    Page<PublisherResponseDto> getPublisherByName(String name, Pageable pageable);
+    Page<PublisherResponseDto> findPublisherByName(String name, Pageable pageable);
 
     boolean existsPublisherByName(@NotBlank String name);
 }

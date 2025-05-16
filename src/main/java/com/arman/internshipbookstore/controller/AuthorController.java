@@ -25,8 +25,8 @@ public class AuthorController {
     }
 
     @GetMapping("/name")
-    public PageResponseDto<AuthorResponseDto> getAuthorByName(@ModelAttribute @Valid AuthorSearchCriteria criteria) {
-        return authorService.getAuthorByName(criteria);
+    public PageResponseDto<AuthorResponseDto> getAuthorsByName(@ModelAttribute @Valid AuthorSearchCriteria criteria) {
+        return authorService.getAuthorsByName(criteria);
     }
 
     @PostMapping

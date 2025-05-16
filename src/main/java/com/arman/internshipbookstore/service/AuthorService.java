@@ -37,8 +37,8 @@ public class AuthorService {
     }
 
 
-    public PageResponseDto<AuthorResponseDto> getAuthorByName(AuthorSearchCriteria criteria) {
-        Page<AuthorResponseDto> authors = authorRepository.getAuthorByName(criteria.getName(), criteria.buildPageRequest());
+    public PageResponseDto<AuthorResponseDto> getAuthorsByName(AuthorSearchCriteria criteria) {
+        Page<AuthorResponseDto> authors = authorRepository.findAuthorsByName(criteria.getName(), criteria.buildPageRequest());
 
         return PageResponseDto.from(authors);
     }

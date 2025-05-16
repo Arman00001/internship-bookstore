@@ -32,8 +32,8 @@ public class PublisherService {
         return PublisherResponseDto.getPublisherResponse(publisher);
     }
 
-    public PageResponseDto<PublisherResponseDto> getPublisherByName(PublisherSearchCriteria criteria) {
-        Page<PublisherResponseDto> publishers = publisherRepository.getPublisherByName(criteria.getName(), criteria.buildPageRequest());
+    public PageResponseDto<PublisherResponseDto> getPublishersByName(PublisherSearchCriteria criteria) {
+        Page<PublisherResponseDto> publishers = publisherRepository.findPublisherByName(criteria.getName(), criteria.buildPageRequest());
 
         return PageResponseDto.from(publishers);
     }

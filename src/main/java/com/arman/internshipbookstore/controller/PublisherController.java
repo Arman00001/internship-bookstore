@@ -19,8 +19,8 @@ public class PublisherController {
     private final PublisherService publisherService;
 
     @GetMapping("/name")
-    public PageResponseDto<PublisherResponseDto> getPublisherByName(@ModelAttribute @Valid PublisherSearchCriteria criteria) {
-        return publisherService.getPublisherByName(criteria);
+    public PageResponseDto<PublisherResponseDto> getPublishersByName(@ModelAttribute @Valid PublisherSearchCriteria criteria) {
+        return publisherService.getPublishersByName(criteria);
     }
 
     @GetMapping("/{id}")
