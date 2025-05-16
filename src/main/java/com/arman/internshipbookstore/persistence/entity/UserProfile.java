@@ -7,6 +7,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -47,4 +49,10 @@ public class UserProfile {
     @OneToOne(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserCredentials credentials;
 
+    @OneToMany(mappedBy = "user")
+    private List<UserOrder> purchasedBooks = new ArrayList<>();
+
+    public void addPurchasedBook(UserOrder userOrder){
+        purchasedBooks.add(userOrder);
+    }
 }
