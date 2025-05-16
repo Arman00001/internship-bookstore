@@ -1,15 +1,17 @@
 package com.arman.internshipbookstore.service;
 
 import com.arman.internshipbookstore.persistence.entity.Book;
+import com.arman.internshipbookstore.service.criteria.AuthorSearchCriteria;
+import com.arman.internshipbookstore.service.dto.PageResponseDto;
 import com.arman.internshipbookstore.service.dto.author.AuthorCreateDto;
 import com.arman.internshipbookstore.persistence.entity.Author;
 import com.arman.internshipbookstore.persistence.repository.AuthorRepository;
 import com.arman.internshipbookstore.service.dto.author.AuthorResponseDto;
 import com.arman.internshipbookstore.service.dto.author.AuthorUpdateDto;
-import com.arman.internshipbookstore.service.exception.AuthorAlreadyExistsException;
 import com.arman.internshipbookstore.service.exception.AuthorNotFoundException;
 import com.arman.internshipbookstore.service.mapper.AuthorMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -35,10 +37,10 @@ public class AuthorService {
     }
 
 
-    public AuthorResponseDto getAuthorByName(String name) {
-        Author author = authorRepository.getAuthorByName(name);
+    public PageResponseDto<AuthorResponseDto> getAuthorByName(AuthorSearchCriteria criteria) {
+        Page<AuthorResponseDto> authors = authorRepository.getAuthorByName(criteria.getName(), criteria.buildPageRequest());
 
-        return new AuthorResponseDto(author.getId(), author.getName());
+        return PageResponseDto.from(authors);
     }
 
     public List<Author> findAll() {
@@ -46,12 +48,7 @@ public class AuthorService {
     }
 
     public AuthorResponseDto addAuthor(AuthorCreateDto authorCreateDto) {
-        Author author = authorRepository.getAuthorByName(authorCreateDto.getName());
-        if (author != null) {
-            throw new AuthorAlreadyExistsException("Author with the following name already exists: " + authorCreateDto.getName());
-        }
-
-        author = authorMapper.mapDtoToAuthor(authorCreateDto);
+        Author author = authorMapper.mapDtoToAuthor(authorCreateDto);
 
         return AuthorResponseDto.getAuthorResponse(authorRepository.save(author));
     }
