@@ -38,7 +38,10 @@ public class OrderService {
         order.setPurchaseStatus(PurchaseStatus.PURCHASED);
         order.setPricePaid(book.getPrice());
 
-        return OrderResponseDto.getOrderResponse(orderRepository.save(order));
+        UserOrder userOrder = orderRepository.save(order);
+        user.addPurchasedBook(userOrder);
+
+        return OrderResponseDto.getOrderResponse(userOrder);
     }
 
     public void returnBook(Long orderId, Authentication auth) {
