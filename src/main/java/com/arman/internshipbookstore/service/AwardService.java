@@ -3,13 +3,17 @@ package com.arman.internshipbookstore.service;
 import com.arman.internshipbookstore.persistence.entity.Award;
 import com.arman.internshipbookstore.persistence.entity.Book;
 import com.arman.internshipbookstore.persistence.repository.AwardRepository;
+import com.arman.internshipbookstore.service.criteria.AwardSearchCriteria;
+import com.arman.internshipbookstore.service.dto.PageResponseDto;
 import com.arman.internshipbookstore.service.dto.award.AwardCreateDto;
 import com.arman.internshipbookstore.service.dto.award.AwardResponseDto;
 import com.arman.internshipbookstore.service.dto.award.AwardUpdateDto;
 import com.arman.internshipbookstore.service.exception.AwardAlreadyExistsException;
 import com.arman.internshipbookstore.service.exception.AwardNotFoundException;
 import com.arman.internshipbookstore.service.mapper.AwardMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -38,8 +42,10 @@ public class AwardService {
         return new AwardResponseDto(award.getId(), award.getName());
     }
 
-    public AwardResponseDto getAwardByName(String name) {
-        return AwardResponseDto.getAwardResponse(awardRepository.getAwardByName(name));
+    public PageResponseDto<AwardResponseDto> getAwardsByName(@Valid AwardSearchCriteria criteria) {
+        Page<AwardResponseDto> awards = awardRepository.findAwardsByName(criteria.getName(),criteria.buildPageRequest());
+
+        return PageResponseDto.from(awards);
     }
 
     public AwardResponseDto addAward(AwardCreateDto awardCreateDto) {
