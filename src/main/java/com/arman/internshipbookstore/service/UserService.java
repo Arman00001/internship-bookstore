@@ -83,11 +83,15 @@ public class UserService {
         return UserDto.toDto(userProfileRepository.save(userProfile));
     }
 
-    public void deleteUser(Long id) {
-        UserCredentials credentials = userCredentialRepository.findByUserProfileId(id)
+    public void deleteUser(Long id, UserDeleteDto userDeleteDto, Authentication auth) {
+        UserProfile userProfile = userProfileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        if(checkUserAuthentication(userProfile, auth, userDeleteDto.getPassword())) {
+            userProfileRepository.delete(userProfile);
+            return;
+        }
 
-        userCredentialRepository.delete(credentials);
+        throw new IllegalStateException("User not authorized to perform such action");
     }
 
     @Transactional
