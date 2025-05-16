@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,20 +24,22 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
-    public BookResponseDto getBookById(@PathVariable("id") Long id){
-        return bookService.getBookById(id);
+    public ResponseEntity<BookResponseDto> getBookById(@PathVariable("id") Long id){
+        return ResponseEntity.ok(bookService.getBookById(id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BookDto addBook(@RequestBody @Valid BookCreateDto bookCreateDto) {
-        return bookService.addBook(bookCreateDto);
+    public ResponseEntity<BookResponseDto> addBook(@RequestBody @Valid BookCreateDto bookCreateDto) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(bookService.addBook(bookCreateDto));
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public BookDto updateBook(@RequestBody @Valid BookUpdateDto bookUpdateDto) {
-        return bookService.updateBook(bookUpdateDto);
+    public ResponseEntity<BookResponseDto> updateBook(@RequestBody @Valid BookUpdateDto bookUpdateDto) {
+        return ResponseEntity.ok(bookService.updateBook(bookUpdateDto));
     }
 
     @DeleteMapping("/{id}")
