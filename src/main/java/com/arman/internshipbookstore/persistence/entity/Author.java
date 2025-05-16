@@ -23,7 +23,7 @@ public class Author {
     )
     private Long id;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @OneToMany(mappedBy = "author")
