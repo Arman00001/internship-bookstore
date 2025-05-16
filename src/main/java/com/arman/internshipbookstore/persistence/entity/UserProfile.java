@@ -43,4 +43,8 @@ public class UserProfile {
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    @OneToOne(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserCredentials credentials;
+
 }
