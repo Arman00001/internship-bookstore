@@ -19,8 +19,15 @@ public class BookReview {
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
-    @Column(name = "review", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserProfile user;
+
+    @Column(name = "review", nullable = false, columnDefinition = "TEXT")
     private String review;
+
+    @Column(name = "rating", nullable = false)
+    private Integer rating;
 
     @Column(name = "posted")
     private LocalDate postedOn;
