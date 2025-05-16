@@ -9,7 +9,6 @@ import com.arman.internshipbookstore.service.dto.PageResponseDto;
 import com.arman.internshipbookstore.service.dto.award.AwardOfBookResponseDto;
 import com.arman.internshipbookstore.service.dto.book.*;
 import com.arman.internshipbookstore.service.criteria.BookSearchCriteria;
-import com.arman.internshipbookstore.service.dto.character.CharacterDto;
 import com.arman.internshipbookstore.service.exception.*;
 import com.arman.internshipbookstore.service.mapper.BookMapper;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static com.arman.internshipbookstore.service.util.StringUtils.removeSingleQuotes;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +32,7 @@ public class BookService {
     private final BookAwardRepository bookAwardRepository;
 
 
-    public BookDto addBook(BookCreateDto bookCreateDto) {
+    public BookResponseDto addBook(BookCreateDto bookCreateDto) {
         validateIsbn(bookCreateDto.getIsbn());
 
         Book book = bookMapper.mapCreateDtoToBook(bookCreateDto);
@@ -45,9 +43,9 @@ public class BookService {
         setBookCharacters(book, bookCreateDto.getCharacters());
         book.setGenres(bookCreateDto.getGenres());
 
-        Book book1 = bookRepository.save(book);
+        Book savedBook = bookRepository.save(book);
 
-        return bookMapper.mapToDto(book1);
+        return bookMapper.mapToResponseDto(savedBook);
     }
 
     public PageResponseDto<BookSummaryResponseDto> searchBooks(BookSearchCriteria criteria) {
@@ -65,7 +63,7 @@ public class BookService {
 
 
     @Transactional
-    public BookDto updateBook(BookUpdateDto bookUpdateDto) {
+    public BookResponseDto updateBook(BookUpdateDto bookUpdateDto) {
         Book book = bookRepository.findById(bookUpdateDto.getId()).
                 orElseThrow(() -> new BookNotFoundException("Book with the following id does not exist: " + bookUpdateDto.getId()));
 
@@ -90,9 +88,7 @@ public class BookService {
             characterService.assignCharactersOfBook(book,characterName);
         }
 
-        Book book1 = bookRepository.save(book);
-
-        return bookMapper.mapToDto(book1);
+        return bookMapper.mapToResponseDto(book);
     }
 
     @Transactional
@@ -161,15 +157,12 @@ public class BookService {
     }
 
     private List<AuthorOfBookResponseDto> setBookResponseAuthors(Long bookId) {
-
-        List<AuthorOfBookResponseDto> authorOfBookResponseDtos = bookAuthorRepository.getBookAuthorsByBook_Id(bookId).stream()
+        return bookAuthorRepository.findByBook_Id(bookId).stream()
                 .map(bookAuthor -> {
                     Author author = bookAuthor.getAuthor();
                     return new AuthorOfBookResponseDto(author.getId(), author.getName(), bookAuthor.getRole());
                 })
                 .toList();
-
-        return authorOfBookResponseDtos;
     }
 
 

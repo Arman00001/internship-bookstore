@@ -4,7 +4,6 @@ import com.arman.internshipbookstore.persistence.entity.Book;
 import com.arman.internshipbookstore.persistence.entity.Characters;
 import com.arman.internshipbookstore.persistence.repository.CharacterRepository;
 import com.arman.internshipbookstore.service.dto.character.CharacterDto;
-import com.arman.internshipbookstore.service.dto.character.CharacterResponseDto;
 import com.arman.internshipbookstore.service.exception.CharacterAlreadyExistsException;
 import com.arman.internshipbookstore.service.mapper.CharacterMapper;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +44,8 @@ public class CharacterService {
     public void assignCharactersOfBook(Book book, String characters) {
         List<Characters> charactersList = createOrGetCharacters(characters);
 
-        for (Characters character : charactersList) {
+        for (Characters ch : charactersList) {
+            Characters character = characterRepository.save(ch);
             book.addCharacter(character);
         }
     }

@@ -4,7 +4,6 @@ import com.arman.internshipbookstore.persistence.entity.Role;
 import com.arman.internshipbookstore.persistence.entity.UserCredentials;
 import com.arman.internshipbookstore.persistence.entity.UserProfile;
 import com.arman.internshipbookstore.persistence.repository.UserCredentialRepository;
-import com.arman.internshipbookstore.persistence.repository.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
@@ -25,7 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserCredentials userCredentials = userCredentialRepository.findByUsername(username)
-                .orElseThrow(()->new BadCredentialsException("Bad credentials"));
+                .orElseThrow(() -> new BadCredentialsException("Bad credentials"));
 
         UserProfile userProfile = userCredentials.getUserProfile();
 
