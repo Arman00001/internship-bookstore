@@ -1,6 +1,7 @@
 package com.arman.internshipbookstore.persistence.repository;
 
 import com.arman.internshipbookstore.persistence.entity.Publisher;
+import com.arman.internshipbookstore.service.criteria.PublisherSearchCriteria;
 import com.arman.internshipbookstore.service.dto.publisher.PublisherResponseDto;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Page;
@@ -18,9 +19,9 @@ public interface PublisherRepository extends JpaRepository<Publisher, Long> {
                 p.name
             )
             FROM Publisher p
-            WHERE p.name LIKE CONCAT('%',:name,'%')
+            WHERE :#{#criteria.name} IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%',:#{#criteria.name},'%'))
 """)
-    Page<PublisherResponseDto> findPublisherByName(String name, Pageable pageable);
+    Page<PublisherResponseDto> findPublisherCriteria(PublisherSearchCriteria criteria, Pageable pageable);
 
     boolean existsPublisherByName(@NotBlank String name);
 }

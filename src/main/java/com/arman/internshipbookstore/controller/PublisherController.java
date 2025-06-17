@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.*;
 public class PublisherController {
     private final PublisherService publisherService;
 
-    @GetMapping("/name")
-    public PageResponseDto<PublisherResponseDto> getPublishersByName(@ModelAttribute @Valid PublisherSearchCriteria criteria) {
-        return publisherService.getPublishersByName(criteria);
+    @GetMapping
+    public PageResponseDto<PublisherResponseDto> getPublishers(@ModelAttribute PublisherSearchCriteria criteria) {
+        return publisherService.searchPublishers(criteria);
     }
 
     @GetMapping("/{id}")
