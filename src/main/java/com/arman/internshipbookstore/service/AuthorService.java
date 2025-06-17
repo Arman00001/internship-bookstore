@@ -26,6 +26,12 @@ public class AuthorService {
     private final AuthorRepository authorRepository;
     private final AuthorMapper authorMapper;
 
+    public PageResponseDto<AuthorResponseDto> searchAuthors(AuthorSearchCriteria criteria) {
+        Page<AuthorResponseDto> page = authorRepository.findAllCriteria(criteria, criteria.buildPageRequest());
+
+        return PageResponseDto.from(page);
+    }
+
     public AuthorResponseDto getAuthorById(Long id) {
         Author author = authorRepository.getAuthorById(id);
 
@@ -36,12 +42,6 @@ public class AuthorService {
         return new AuthorResponseDto(author.getId(), author.getName());
     }
 
-
-    public PageResponseDto<AuthorResponseDto> getAuthorsByName(AuthorSearchCriteria criteria) {
-        Page<AuthorResponseDto> authors = authorRepository.findAuthorsByName(criteria.getName(), criteria.buildPageRequest());
-
-        return PageResponseDto.from(authors);
-    }
 
     public List<Author> findAll() {
         return authorRepository.findAll();
@@ -132,4 +132,5 @@ public class AuthorService {
     public static String extractAuthorName(String authorToken) {
         return authorToken.replaceAll("\\([^)]*\\)", "").trim();
     }
+
 }

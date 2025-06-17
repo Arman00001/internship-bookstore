@@ -19,14 +19,14 @@ public class AuthorController {
 
     private final AuthorService authorService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AuthorResponseDto> getAuthor(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(authorService.getAuthorById(id));
+    @GetMapping
+    public PageResponseDto<AuthorResponseDto> getAuthors(@ModelAttribute AuthorSearchCriteria authorSearchCriteria){
+        return authorService.searchAuthors(authorSearchCriteria);
     }
 
-    @GetMapping("/name")
-    public PageResponseDto<AuthorResponseDto> getAuthorsByName(@ModelAttribute @Valid AuthorSearchCriteria criteria) {
-        return authorService.getAuthorsByName(criteria);
+    @GetMapping("/{id}")
+    public ResponseEntity<AuthorResponseDto> getAuthorById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(authorService.getAuthorById(id));
     }
 
     @PostMapping
