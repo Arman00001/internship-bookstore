@@ -1,6 +1,5 @@
 package com.arman.internshipbookstore.controller;
 
-import com.arman.internshipbookstore.persistence.entity.Award;
 import com.arman.internshipbookstore.service.AwardService;
 import com.arman.internshipbookstore.service.criteria.AwardSearchCriteria;
 import com.arman.internshipbookstore.service.dto.PageResponseDto;
@@ -20,14 +19,14 @@ public class AwardController {
 
     private final AwardService awardService;
 
+    @GetMapping
+    public PageResponseDto<AwardResponseDto> getAwards(@ModelAttribute AwardSearchCriteria criteria){
+        return awardService.searchAwards(criteria);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<AwardResponseDto> getAwardById(@PathVariable("id") Long id){
         return ResponseEntity.ok(awardService.getAwardResponseById(id));
-    }
-
-    @GetMapping("/name")
-    public PageResponseDto<AwardResponseDto> getAwardByName(@ModelAttribute @Valid AwardSearchCriteria criteria){
-        return awardService.getAwardsByName(criteria);
     }
 
     @PostMapping

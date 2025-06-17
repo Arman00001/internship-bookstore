@@ -1,6 +1,7 @@
 package com.arman.internshipbookstore.persistence.repository;
 
 import com.arman.internshipbookstore.persistence.entity.Award;
+import com.arman.internshipbookstore.service.criteria.AwardSearchCriteria;
 import com.arman.internshipbookstore.service.dto.award.AwardResponseDto;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Page;
@@ -19,14 +20,11 @@ public interface AwardRepository extends JpaRepository<Award, Long> {
                 aw.name
             )
             FROM Award aw
-            WHERE aw.name LIKE CONCAT('%',:name,'%')
+            WHERE :#{#criteria.name} IS NULL OR  LOWER(aw.name) LIKE LOWER(CONCAT('%',:#{#criteria.name},'%'))
 """)
-    Page<AwardResponseDto> findAwardsByName(String name, Pageable pageable);
+    Page<AwardResponseDto> findAwardsCriteria(AwardSearchCriteria criteria, Pageable pageable);
 
     Award getAwardByName(String name);
-
-    @Query("SELECT aw.name FROM Award aw")
-    Set<String> findAllAwardNames();
 
     Award getAwardById(Long id);
 

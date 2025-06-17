@@ -42,8 +42,8 @@ public class AwardService {
         return new AwardResponseDto(award.getId(), award.getName());
     }
 
-    public PageResponseDto<AwardResponseDto> getAwardsByName(@Valid AwardSearchCriteria criteria) {
-        Page<AwardResponseDto> awards = awardRepository.findAwardsByName(criteria.getName(),criteria.buildPageRequest());
+    public PageResponseDto<AwardResponseDto> searchAwards(@Valid AwardSearchCriteria criteria) {
+        Page<AwardResponseDto> awards = awardRepository.findAwardsCriteria(criteria,criteria.buildPageRequest());
 
         return PageResponseDto.from(awards);
     }
